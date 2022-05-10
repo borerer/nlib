@@ -1,0 +1,17 @@
+kind: pipeline
+type: docker
+name: default
+
+steps:
+- name: greeting
+  image: docker
+  volumes:
+  - name: dockersock
+    path: /var/run/docker.sock
+  commands:
+  - docker build . -t nlib
+
+volumes:
+- name: dockersock
+  host:
+    path: /var/run/docker.sock
