@@ -25,6 +25,10 @@ func Init(config *configs.AppConfig) error {
 	return nil
 }
 
+func GetZapLogger() *zap.Logger {
+	return logger
+}
+
 func Debug(msg string, fields ...zap.Field) {
 	logger.Debug(msg, fields...)
 }
