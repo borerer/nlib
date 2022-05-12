@@ -1,19 +1,43 @@
 kind: pipeline
 type: docker
-name: default
+name: unit-test
 
 steps:
-- name: build-docker
-  image: docker
-  volumes:
-  - name: dockersock
-    path: /var/run/docker.sock
+- name: unit-test
+  image: golang
   commands:
-  - docker build . -t nlib
-  - docker image tag nlib registry.home.iloahz.com/iloahz/nlib
-  - docker image push registry.home.iloahz.com/iloahz/nlib
+  - go test ./...
 
-volumes:
-- name: dockersock
-  host:
-    path: /var/run/docker.sock
+---
+kind: pipeline
+type: docker
+name: publish-docker-registry
+
+steps:
+- name: publish-docker-registry  
+  image: plugins/docker
+  settings:
+    repo: registry.home.iloahz.com/iloahz/nlib
+    tags: latest
+
+---
+kind: pipeline
+type: ssh
+name: deploy
+
+server:
+  host: pku.home.iloahz.com
+  user: iloahz
+  password:
+    from_secret: pku_password
+
+steps:
+- name: deploy
+  commands:
+  - cd /mnt/data/docker/nlib
+  - docker-compose down
+  - docker-compose pull
+  - docker-compose up -d
+
+depends_on:
+- publish-docker-registry
