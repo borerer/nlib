@@ -19,7 +19,7 @@ func GetAppConfig() *AppConfig {
 	viper.BindEnv("addr") // will bind NLIB_ADDR
 	viper.BindEnv("port")
 	viper.SetDefault("addr", "0.0.0.0")
-	viper.SetDefault("port", "8080")
+	viper.SetDefault("port", "9502")
 	utils.Must(viper.ReadInConfig())
 	var appConfig AppConfig
 	utils.Must(viper.Unmarshal(&appConfig))

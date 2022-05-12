@@ -11,3 +11,4 @@ WORKDIR /nlib
 COPY --from=builder /nlib/nlib /nlib/nlib
 COPY --from=builder /nlib/data/config.json /nlib/data/config.json
 ENTRYPOINT ["/nlib/nlib"]
+EXPOSE 9502
