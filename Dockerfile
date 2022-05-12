@@ -9,5 +9,5 @@ RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build
 FROM alpine
 WORKDIR /nlib
 COPY --from=builder /nlib/nlib /nlib/nlib
-COPY --from=builder /nlib/config.json /nlib/config.json
+COPY --from=builder /nlib/data/config.json /nlib/data/config.json
 ENTRYPOINT ["/nlib/nlib"]

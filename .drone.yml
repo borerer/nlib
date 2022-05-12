@@ -3,13 +3,15 @@ type: docker
 name: default
 
 steps:
-- name: greeting
+- name: build-docker
   image: docker
   volumes:
   - name: dockersock
     path: /var/run/docker.sock
   commands:
   - docker build . -t nlib
+  - docker image tag nlib registry.home.iloahz.com/iloahz/nlib
+  - docker image push registry.home.iloahz.com/iloahz/nlib
 
 volumes:
 - name: dockersock
