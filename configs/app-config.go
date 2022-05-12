@@ -11,20 +11,17 @@ type AppConfig struct {
 	Port     string `json:"port" mapstructure:"port"`
 }
 
-var (
-	appConfig = &AppConfig{}
-)
-
-func init() {
-	viper.AddConfigPath(".")
+func GetAppConfig() *AppConfig {
+	viper.AddConfigPath("data")
 	viper.SetConfigName("config")
 	viper.SetConfigType("json")
+	viper.SetEnvPrefix("nlib")
+	viper.BindEnv("addr") // will bind NLIB_ADDR
+	viper.BindEnv("port")
 	viper.SetDefault("addr", "0.0.0.0")
 	viper.SetDefault("port", "8080")
 	utils.Must(viper.ReadInConfig())
-	utils.Must(viper.Unmarshal(appConfig))
-}
-
-func GetAppConfig() *AppConfig {
-	return appConfig
+	var appConfig AppConfig
+	utils.Must(viper.Unmarshal(&appConfig))
+	return &appConfig
 }

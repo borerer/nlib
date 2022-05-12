@@ -24,6 +24,11 @@ func (app *App) createRouter() error {
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 	}))
+
+	r.GET("/", app.getHomepageHandler)
+
+	r.POST("/api/checkin", app.checkinHandler)
+
 	app.ginRouter = r
 	return nil
 }

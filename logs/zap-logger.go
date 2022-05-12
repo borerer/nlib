@@ -16,7 +16,7 @@ func Init(config *configs.AppConfig) error {
 	if err != nil {
 		return err
 	}
-	cfg := zap.NewProductionConfig()
+	cfg := zap.NewDevelopmentConfig()
 	cfg.Level = level
 	logger, err = cfg.Build(zap.AddCallerSkip(1))
 	if err != nil {
