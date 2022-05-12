@@ -1,12 +1,23 @@
 kind: pipeline
 type: docker
-name: unit-test
+name: code-analysis
 
 steps:
 - name: unit-test
-  image: golang
+  image: registry.home.iloahz.com/iloahz/nlib-ci:latest
   commands:
-  - go test ./...
+  - go test ./... -json > report.json
+  - go test ./... -coverprofile coverage.out
+  - mkdir tests
+  - mv report.json tests/
+  - mv coverage.out tests/
+- name: sonarqube
+  image: registry.home.iloahz.com/iloahz/nlib-ci:latest
+  environment:
+    SONAR_TOKEN:
+      from_secret: sonar_token
+  commands:
+  - sonar-scanner -Dsonar.projectKey=nlib -Dsonar.sources=. -Dsonar.host.url=https://sonarqube.home.iloahz.com -Dsonar.login=$SONAR_TOKEN
 
 ---
 kind: pipeline
