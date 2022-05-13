@@ -52,3 +52,22 @@ steps:
 
 depends_on:
 - publish-docker-registry
+
+---
+kind: pipeline
+name: notify
+
+steps:
+- name: notify
+  image: plugins/matrix
+  settings:
+    homeserver: https://synapse.home.iloahz.com/
+    roomid: ItEXGitVFQXtOBMmSx:synapse.home.iloahz.com
+    username: drone
+    password:
+      from_secret: matrix_password
+
+depends_on:
+- code-analysis
+- publish-docker-registry
+- deploy
