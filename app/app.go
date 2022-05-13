@@ -1,6 +1,7 @@
 package app
 
 import (
+	"context"
 	"net/http"
 
 	"gitea.home.iloahz.com/iloahz/nlib/configs"
@@ -26,5 +27,7 @@ func (app *App) Start() {
 }
 
 func (app *App) Stop() {
-
+	if app.httpServer != nil {
+		app.httpServer.Shutdown(context.Background())
+	}
 }

@@ -5,6 +5,9 @@ name: code-analysis
 steps:
 - name: unit-test
   image: registry.home.iloahz.com/iloahz/nlib-ci:latest
+  volumes:
+  - name: golang-cache
+    path: /go
   commands:
   - go test ./... -json > report.json
   - go test ./... -coverprofile coverage.out
@@ -19,17 +22,22 @@ steps:
   commands:
   - sonar-scanner -Dsonar.projectKey=nlib -Dsonar.sources=. -Dsonar.host.url=https://sonarqube.home.iloahz.com -Dsonar.login=$SONAR_TOKEN
 
+volumes:
+- name: golang-cache
+  host:
+    path: /var/lib/cache/go
 ---
 kind: pipeline
-type: docker
 name: publish-docker-registry
 
 steps:
-- name: publish-docker-registry  
-  image: registry.home.iloahz.com/plugins/docker:latest
+- name: publish-docker-registry
+  image: plugins/docker
   settings:
     repo: registry.home.iloahz.com/iloahz/nlib
     tags: latest
+    registry: registry.home.iloahz.com
+    cache_from: registry.home.iloahz.com/iloahz/nlib
 
 ---
 kind: pipeline
@@ -69,5 +77,4 @@ steps:
 
 depends_on:
 - code-analysis
-- publish-docker-registry
 - deploy
