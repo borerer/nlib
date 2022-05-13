@@ -26,7 +26,7 @@ name: publish-docker-registry
 
 steps:
 - name: publish-docker-registry  
-  image: plugins/docker
+  image: registry.home.iloahz.com/plugins/docker:latest
   settings:
     repo: registry.home.iloahz.com/iloahz/nlib
     tags: latest
@@ -59,7 +59,7 @@ name: notify
 
 steps:
 - name: notify
-  image: plugins/matrix
+  image: registry.home.iloahz.com/plugins/matrix:latest
   settings:
     homeserver: https://synapse.home.iloahz.com/
     roomid: ItEXGitVFQXtOBMmSx:synapse.home.iloahz.com
