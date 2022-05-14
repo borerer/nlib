@@ -4,7 +4,7 @@ name: code-analysis
 
 steps:
 - name: unit-test
-  image: registry.home.iloahz.com/iloahz/nlib-ci:latest
+  image: registry.home.iloahz.com/nlib/nlib-ci:latest
   volumes:
   - name: golang-cache
     path: /go
@@ -15,7 +15,7 @@ steps:
   - mv report.json tests/
   - mv coverage.out tests/
 - name: sonarqube
-  image: registry.home.iloahz.com/iloahz/nlib-ci:latest
+  image: registry.home.iloahz.com/nlib/nlib-ci:latest
   environment:
     SONAR_TOKEN:
       from_secret: sonar_token
@@ -34,10 +34,10 @@ steps:
 - name: publish-docker-registry
   image: plugins/docker
   settings:
-    repo: registry.home.iloahz.com/iloahz/nlib
+    repo: registry.home.iloahz.com/nlib/nlib
     tags: latest
     registry: registry.home.iloahz.com
-    cache_from: registry.home.iloahz.com/iloahz/nlib
+    cache_from: registry.home.iloahz.com/nlib/nlib
 
 ---
 kind: pipeline

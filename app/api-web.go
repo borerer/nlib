@@ -7,5 +7,5 @@ import (
 )
 
 func (app *App) getHomepageHandler(c *gin.Context) {
-	c.String(http.StatusOK, "ok")
+	c.String(http.StatusOK, "good")
 }
