@@ -1,7 +1,7 @@
 package logs
 
 import (
-	"gitea.home.iloahz.com/iloahz/nlib/configs"
+	"github.com/borerer/nlib/configs"
 	"go.uber.org/zap"
 )
 

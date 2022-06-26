@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"gitea.home.iloahz.com/iloahz/nlib/logs"
+	"github.com/borerer/nlib/logs"
 	"github.com/gin-contrib/cors"
 	ginzap "github.com/gin-contrib/zap"
 	"github.com/gin-gonic/gin"
@@ -27,7 +27,8 @@ func (app *App) createRouter() error {
 
 	r.GET("/", app.getHomepageHandler)
 
-	r.POST("/api/checkin", app.checkinHandler)
+	r.POST("/api/register", app.registerHandler)
+	r.POST("/api/log", app.logHandler)
 
 	app.ginRouter = r
 	return nil

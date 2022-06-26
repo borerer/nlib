@@ -4,7 +4,8 @@ import (
 	"context"
 	"net/http"
 
-	"gitea.home.iloahz.com/iloahz/nlib/configs"
+	"github.com/borerer/nlib/configs"
+	"github.com/borerer/nlib/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -28,6 +29,6 @@ func (app *App) Start() {
 
 func (app *App) Stop() {
 	if app.httpServer != nil {
-		app.httpServer.Shutdown(context.Background())
+		utils.Must(app.httpServer.Shutdown(context.Background()))
 	}
 }

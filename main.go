@@ -1,8 +1,8 @@
 package main
 
 import (
-	"gitea.home.iloahz.com/iloahz/nlib/app"
-	"gitea.home.iloahz.com/iloahz/nlib/configs"
+	"github.com/borerer/nlib/app"
+	"github.com/borerer/nlib/configs"
 )
 
 func main() {

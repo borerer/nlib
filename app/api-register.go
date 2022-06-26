@@ -3,21 +3,21 @@ package app
 import (
 	"net/http"
 
-	"gitea.home.iloahz.com/iloahz/nlib/constants"
-	"gitea.home.iloahz.com/iloahz/nlib/logs"
-	"gitea.home.iloahz.com/iloahz/nlib/models"
+	"github.com/borerer/nlib/constants"
+	"github.com/borerer/nlib/logs"
+	"github.com/borerer/nlib/models"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
 
-func (app *App) checkinHandler(c *gin.Context) {
-	var req models.RequestCheckin
+func (app *App) registerHandler(c *gin.Context) {
+	var req models.RegisterRequest
 	if err := c.BindJSON(&req); err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 	logs.Info("reg", zap.Any("req", req))
-	res := &models.ResponseCheckin{
+	res := &models.RegisterResponse{
 		Version: constants.Version,
 	}
 	c.JSON(http.StatusOK, res)

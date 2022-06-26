@@ -1,7 +1,7 @@
 package configs
 
 import (
-	"gitea.home.iloahz.com/iloahz/nlib/utils"
+	"github.com/borerer/nlib/utils"
 	"github.com/spf13/viper"
 )
 
@@ -9,6 +9,7 @@ type AppConfig struct {
 	LogLevel string `json:"log_level" mapstructure:"log_level"`
 	Addr     string `json:"addr" mapstructure:"addr"`
 	Port     string `json:"port" mapstructure:"port"`
+	Mongo    string `json:"mongo" mapstructure:"mongo"`
 }
 
 func GetAppConfig() *AppConfig {

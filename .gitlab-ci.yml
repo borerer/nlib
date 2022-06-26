@@ -1,9 +1,0 @@
-image: golang:latest
-
-stages:
-  - test
-
-unit-test:
-  stage: test
-  script:
-    - go test ./...

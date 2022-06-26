@@ -1,9 +1,9 @@
 package app
 
 import (
-	"gitea.home.iloahz.com/iloahz/nlib/configs"
-	"gitea.home.iloahz.com/iloahz/nlib/logs"
-	"gitea.home.iloahz.com/iloahz/nlib/utils"
+	"github.com/borerer/nlib/configs"
+	"github.com/borerer/nlib/logs"
+	"github.com/borerer/nlib/utils"
 	"go.uber.org/zap"
 )
 
