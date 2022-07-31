@@ -3,14 +3,23 @@ package app
 import (
 	"fmt"
 	"net/http"
+	"path"
 	"time"
 
+	"github.com/borerer/nlib/engines"
 	"github.com/borerer/nlib/logs"
 	"github.com/gin-contrib/cors"
 	ginzap "github.com/gin-contrib/zap"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
+
+func (app *App) getAppEngine(c *gin.Context) {
+	appID := c.Query("app")
+	fileBaseDir := path.Join(app.config.FileDir, appID)
+	c.Set("app-engine", engines.NewAppEngine(appID, fileBaseDir))
+	c.Next()
+}
 
 func (app *App) createRouter() error {
 	r := gin.New()
@@ -27,7 +36,7 @@ func (app *App) createRouter() error {
 
 	r.GET("/", app.getHomepageHandler)
 
-	r.POST("/api/register", app.registerHandler)
+	r.GET("/api/file/get", app.getAppEngine, app.getObjectHandler)
 	r.POST("/api/log", app.logHandler)
 
 	app.ginRouter = r

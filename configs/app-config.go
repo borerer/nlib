@@ -9,6 +9,7 @@ type AppConfig struct {
 	LogLevel string `json:"log_level" mapstructure:"log_level"`
 	Addr     string `json:"addr" mapstructure:"addr"`
 	Port     string `json:"port" mapstructure:"port"`
+	FileDir  string `json:"file_dir" mapstructure:"file_dir"`
 	Mongo    string `json:"mongo" mapstructure:"mongo"`
 }
 
