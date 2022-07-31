@@ -37,6 +37,7 @@ func (app *App) createRouter() error {
 	r.GET("/", app.getHomepageHandler)
 
 	r.GET("/api/file/get", app.getAppEngine, app.getObjectHandler)
+	r.PUT("/api/file/put", app.getAppEngine, app.putObjectHandler)
 	r.POST("/api/log", app.logHandler)
 
 	app.ginRouter = r

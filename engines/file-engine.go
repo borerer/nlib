@@ -3,5 +3,6 @@ package engines
 import "io"
 
 type FileEngine interface {
-	GetFile(file string) (io.Reader, error)
+	GetFile(filename string) (io.Reader, error)
+	PutFile(filename string, override bool, fileReader io.Reader) (int64, error)
 }

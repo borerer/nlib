@@ -25,3 +25,15 @@ func (app *App) getObjectHandler(c *gin.Context) {
 	}
 	logs.Info("get object", zap.String("file", file), zap.Int64("size", n))
 }
+
+func (app *App) putObjectHandler(c *gin.Context) {
+	appEngine := c.MustGet("app-engine").(*engines.AppEngine)
+	filename := c.Query("file")
+	defer c.Request.Body.Close()
+	n, err := appEngine.FileEngine.PutFile(filename, true, c.Request.Body)
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+	logs.Info("put object", zap.String("file", filename), zap.Int64("size", n))
+}
