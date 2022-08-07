@@ -15,5 +15,10 @@
             "dir": "./data/file"
         }
     },
-    "mongo": "mongo.home.iloahz.com"
+    "database": {
+        "mongo": ""
+    },
+    "function": {
+        
+    }
 }

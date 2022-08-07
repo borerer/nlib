@@ -77,7 +77,7 @@ func (f *FileMinio) DeleteFile(filename string) error {
 	return nil
 }
 
-func (f *FileMinio) FileStats(filename string) (*FileStats, error) {
+func (f *FileMinio) HeadFile(filename string) (*FileInfo, error) {
 	if err := f.initClient(); err != nil {
 		return nil, err
 	}
@@ -85,7 +85,7 @@ func (f *FileMinio) FileStats(filename string) (*FileStats, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &FileStats{
+	return &FileInfo{
 		Size:         info.Size,
 		LastModified: info.LastModified.UnixMilli(),
 		ContentType:  info.ContentType,

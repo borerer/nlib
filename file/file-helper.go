@@ -10,11 +10,11 @@ type FileHelper interface {
 	GetFile(filename string) (io.ReadCloser, error)
 	PutFile(filename string, override bool, fileReader io.Reader) (int64, error)
 	DeleteFile(filename string) error
-	FileStats(filename string) (*FileStats, error)
+	HeadFile(filename string) (*FileInfo, error)
 	ListFolder(folder string) ([]string, error)
 }
 
-type FileStats struct {
+type FileInfo struct {
 	Size         int64
 	LastModified int64
 	ContentType  string

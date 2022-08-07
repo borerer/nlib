@@ -12,8 +12,9 @@
 
 ### GetKey
 ### SetKey
-### CreateDocument
+### UpsertDocument
 ### DeleteDocument
-### UpdateDocument
 
-## functions
+## function
+
+## log

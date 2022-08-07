@@ -33,11 +33,19 @@ func (app *App) createRouter() error {
 
 	r.GET("/", app.getHomepageHandler)
 
-	r.GET("/api/file/get", app.getFileHelper, app.getFileHandler)
-	r.PUT("/api/file/put", app.getFileHelper, app.putFileHandler)
-	r.DELETE("/api/file/delete", app.getFileHelper, app.deleteFileHandler)
-	r.GET("/api/file/stats", app.getFileHelper, app.fileStatsHandler)
-	r.GET("/api/file/list", app.getFileHelper, app.listFolderHandler)
+	r.GET("/api/file/get", app.getFileHandler)
+	r.PUT("/api/file/put", app.putFileHandler)
+	r.DELETE("/api/file/delete", app.deleteFileHandler)
+	r.GET("/api/file/stats", app.fileStatsHandler)
+	r.GET("/api/file/list", app.listFolderHandler)
+
+	r.GET("/api/kv/get")
+	r.GET("/api/kv/set")
+	r.PUT("/api/kv/set")
+
+	r.GET("/api/db/:id")
+	r.PUT("/api/db/:id")
+
 	r.POST("/api/log", app.logHandler)
 
 	app.ginRouter = r

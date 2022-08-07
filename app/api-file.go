@@ -5,23 +5,16 @@ import (
 	"net/http"
 	"path"
 
-	"github.com/borerer/nlib/file"
 	"github.com/borerer/nlib/logs"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
 
-func (app *App) getFileHelper(c *gin.Context) {
-	c.Set("file-helper", file.NewFileHelper(&app.config.File))
-	c.Next()
-}
-
 func (app *App) getFileHandler(c *gin.Context) {
-	fileHelper := c.MustGet("file-helper").(file.FileHelper)
 	appID := c.Query("app")
 	file := c.Query("file")
 	filename := path.Join("apps", appID, file)
-	fileReader, err := fileHelper.GetFile(filename)
+	fileReader, err := app.fileHelper.GetFile(filename)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -36,12 +29,11 @@ func (app *App) getFileHandler(c *gin.Context) {
 }
 
 func (app *App) putFileHandler(c *gin.Context) {
-	fileHelper := c.MustGet("file-helper").(file.FileHelper)
 	appID := c.Query("app")
 	file := c.Query("file")
 	filename := path.Join("apps", appID, file)
 	defer c.Request.Body.Close()
-	n, err := fileHelper.PutFile(filename, true, c.Request.Body)
+	n, err := app.fileHelper.PutFile(filename, true, c.Request.Body)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -51,11 +43,10 @@ func (app *App) putFileHandler(c *gin.Context) {
 }
 
 func (app *App) deleteFileHandler(c *gin.Context) {
-	fileHelper := c.MustGet("file-helper").(file.FileHelper)
 	appID := c.Query("app")
 	file := c.Query("file")
 	filename := path.Join("apps", appID, file)
-	err := fileHelper.DeleteFile(filename)
+	err := app.fileHelper.DeleteFile(filename)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -65,11 +56,10 @@ func (app *App) deleteFileHandler(c *gin.Context) {
 }
 
 func (app *App) fileStatsHandler(c *gin.Context) {
-	fileHelper := c.MustGet("file-helper").(file.FileHelper)
 	appID := c.Query("app")
 	file := c.Query("file")
 	filename := path.Join("apps", appID, file)
-	stats, err := fileHelper.FileStats(filename)
+	stats, err := app.fileHelper.HeadFile(filename)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -79,11 +69,10 @@ func (app *App) fileStatsHandler(c *gin.Context) {
 }
 
 func (app *App) listFolderHandler(c *gin.Context) {
-	fileHelper := c.MustGet("file-helper").(file.FileHelper)
 	appID := c.Query("app")
 	folder := c.Query("folder")
 	prefix := path.Join("apps", appID, folder)
-	res, err := fileHelper.ListFolder(prefix)
+	res, err := app.fileHelper.ListFolder(prefix)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
