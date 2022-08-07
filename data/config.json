@@ -16,7 +16,8 @@
         }
     },
     "database": {
-        "mongo": ""
+        "mongo": "",
+        "database": ""
     },
     "function": {
         

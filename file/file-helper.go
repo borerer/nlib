@@ -7,6 +7,8 @@ import (
 )
 
 type FileHelper interface {
+	Start() error
+	Stop() error
 	GetFile(filename string) (io.ReadCloser, error)
 	PutFile(filename string, override bool, fileReader io.Reader) (int64, error)
 	DeleteFile(filename string) error

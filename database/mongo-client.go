@@ -2,62 +2,64 @@ package database
 
 import (
 	"context"
-	"sync"
 	"time"
 
+	"github.com/borerer/nlib/logs"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 const (
-	database = "nlib"
-	timeout  = time.Second * 15
+	timeout = time.Second * 15
 )
 
 type MongoClient struct {
-	mc     *mongo.Client
-	db     *mongo.Database
-	host   string
-	lock   sync.Mutex
-	ctx    context.Context
-	cancel context.CancelFunc
+	client   *mongo.Client
+	db       *mongo.Database
+	host     string
+	database string
 }
 
-func NewMongoClient(host string) *MongoClient {
+func NewMongoClient(host string, database string) *MongoClient {
 	return &MongoClient{
-		host: host,
+		host:     host,
+		database: database,
 	}
 }
 
-func (c *MongoClient) maybeInit() error {
-	c.lock.Lock()
-	defer c.lock.Unlock()
-	if c.mc != nil {
+func (c *MongoClient) Init() error {
+	if c.client != nil {
 		return nil
 	}
-	c.ctx, c.cancel = context.WithTimeout(context.Background(), timeout)
 	var err error
-	c.mc, err = mongo.Connect(c.ctx, options.Client().ApplyURI(c.host))
+	logs.Info(c.host)
+	c.client, err = mongo.Connect(context.Background(), options.Client().ApplyURI(c.host))
 	if err != nil {
 		return err
 	}
-	c.db = c.mc.Database(database)
+	c.db = c.client.Database(c.database)
 	return nil
 }
 
 func (c *MongoClient) Insert(colName string) error {
-	if err := c.maybeInit(); err != nil {
-		return err
-	}
-	c.lock.Lock()
-	defer c.lock.Unlock()
-	col := c.db.Collection(colName)
+	// col := c.db.Collection(colName)
 	return nil
 }
 
-func (c *MongoClient) Stop() error {
-	if c.cancel != nil {
-		c.cancel()
+func (c *MongoClient) Get(colName string, documentID string) (string, error) {
+	col := c.db.Collection(colName)
+	res := col.FindOne(context.Background(), bson.D{{"_id", documentID}})
+	if res.Err() != nil {
+		return "", res.Err()
 	}
+	if raw, err := res.DecodeBytes(); err != nil {
+		return "", err
+	} else {
+		return raw.String(), nil
+	}
+}
+
+func (c *MongoClient) Stop() error {
 	return nil
 }

@@ -8,11 +8,11 @@ import (
 )
 
 type AppConfig struct {
-	LogLevel string     `json:"log_level" mapstructure:"log_level"`
-	Addr     string     `json:"addr" mapstructure:"addr"`
-	Port     string     `json:"port" mapstructure:"port"`
-	Mongo    string     `json:"mongo" mapstructure:"mongo"`
-	File     FileConfig `json:"file" mapstructure:"file"`
+	LogLevel string         `json:"log_level" mapstructure:"log_level"`
+	Addr     string         `json:"addr" mapstructure:"addr"`
+	Port     string         `json:"port" mapstructure:"port"`
+	File     FileConfig     `json:"file" mapstructure:"file"`
+	Database DatabaseConfig `json:"database" mapstructure:"database"`
 }
 
 type FileConfig struct {
@@ -31,6 +31,11 @@ type MinioConfig struct {
 
 type FSConfig struct {
 	Dir string `json:"dir" mapstructure:"dir"`
+}
+
+type DatabaseConfig struct {
+	Mongo    string `json:"mongo" mapstructure:"mongo"`
+	Database string `json:"database" mapstructure:"database"`
 }
 
 func GetAppConfig() *AppConfig {

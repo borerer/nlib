@@ -16,6 +16,6 @@ func Run(config *configs.AppConfig) {
 	utils.Must(logs.Init(config))
 	logs.Info("run", zap.Any("config", config))
 	app := NewApp(config)
-	app.Start()
+	utils.Must(app.Start())
 	waitingForever()
 }

@@ -44,6 +44,18 @@ func (f *FileMinio) initClient() error {
 	return nil
 }
 
+func (f *FileMinio) Start() error {
+	logs.Info("file minio start")
+	if err := f.initClient(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (f *FileMinio) Stop() error {
+	return nil
+}
+
 func (f *FileMinio) GetFile(filename string) (io.ReadCloser, error) {
 	if err := f.initClient(); err != nil {
 		return nil, err

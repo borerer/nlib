@@ -39,7 +39,7 @@ func (app *App) createRouter() error {
 	r.GET("/api/file/stats", app.fileStatsHandler)
 	r.GET("/api/file/list", app.listFolderHandler)
 
-	r.GET("/api/kv/get")
+	r.GET("/api/kv/get", app.getKeyValueHandler)
 	r.GET("/api/kv/set")
 	r.PUT("/api/kv/set")
 
