@@ -2,6 +2,18 @@
     "log_level": "debug",
     "addr": "0.0.0.0",
     "port": 9502,
-    "file_dir": "./data/file",
+    "file": {
+        "engine": "minio",
+        "minio": {
+            "endpoint": "",
+            "access_key": "",
+            "secret_key": "",
+            "use_ssl": true,
+            "bucket": "nlib"
+        },
+        "fs": {
+            "dir": "./data/file"
+        }
+    },
     "mongo": "mongo.home.iloahz.com"
 }

@@ -1,4 +1,4 @@
-package engines
+package file
 
 import (
 	"io"
@@ -16,7 +16,7 @@ func NewFileFS(baseDir string) *FileFS {
 	}
 }
 
-func (fileFS *FileFS) GetFile(filename string) (io.Reader, error) {
+func (fileFS *FileFS) GetFile(filename string) (io.ReadCloser, error) {
 	absFilePath := path.Join(fileFS.BaseDir, filename)
 	f, err := os.Open(absFilePath)
 	if err != nil {
