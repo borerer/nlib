@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/borerer/nlib/file"
 	"github.com/borerer/nlib/logs"
 	"github.com/gin-contrib/cors"
 	ginzap "github.com/gin-contrib/zap"
@@ -13,10 +12,11 @@ import (
 	"go.uber.org/zap"
 )
 
-func (app *App) getFileHelper(c *gin.Context) {
-	c.Set("file-helper", file.NewFileHelper(&app.config.File))
-	c.Next()
-}
+var (
+	ResponseGeneralOK = gin.H{
+		"status": "ok",
+	}
+)
 
 func (app *App) createRouter() error {
 	r := gin.New()
@@ -33,8 +33,11 @@ func (app *App) createRouter() error {
 
 	r.GET("/", app.getHomepageHandler)
 
-	r.GET("/api/file/get", app.getFileHelper, app.getObjectHandler)
-	r.PUT("/api/file/put", app.getFileHelper, app.putObjectHandler)
+	r.GET("/api/file/get", app.getFileHelper, app.getFileHandler)
+	r.PUT("/api/file/put", app.getFileHelper, app.putFileHandler)
+	r.DELETE("/api/file/delete", app.getFileHelper, app.deleteFileHandler)
+	r.GET("/api/file/stats", app.getFileHelper, app.fileStatsHandler)
+	r.GET("/api/file/list", app.getFileHelper, app.listFolderHandler)
 	r.POST("/api/log", app.logHandler)
 
 	app.ginRouter = r

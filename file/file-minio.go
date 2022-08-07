@@ -4,8 +4,10 @@ import (
 	"context"
 	"io"
 
+	"github.com/borerer/nlib/logs"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
+	"go.uber.org/zap"
 )
 
 type FileMinio struct {
@@ -62,4 +64,47 @@ func (f *FileMinio) PutFile(filename string, override bool, fileReader io.Reader
 		return 0, err
 	}
 	return info.Size, nil
+}
+
+func (f *FileMinio) DeleteFile(filename string) error {
+	if err := f.initClient(); err != nil {
+		return err
+	}
+	err := f.client.RemoveObject(context.Background(), f.Config.Bucket, filename, minio.RemoveObjectOptions{})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (f *FileMinio) FileStats(filename string) (*FileStats, error) {
+	if err := f.initClient(); err != nil {
+		return nil, err
+	}
+	info, err := f.client.StatObject(context.Background(), f.Config.Bucket, filename, minio.GetObjectOptions{})
+	if err != nil {
+		return nil, err
+	}
+	return &FileStats{
+		Size:         info.Size,
+		LastModified: info.LastModified.UnixMilli(),
+		ContentType:  info.ContentType,
+	}, nil
+}
+
+func (f *FileMinio) ListFolder(folder string) ([]string, error) {
+	if err := f.initClient(); err != nil {
+		return nil, err
+	}
+	objectCh := f.client.ListObjects(context.Background(), f.Config.Bucket, minio.ListObjectsOptions{
+		Prefix:    folder,
+		Recursive: false,
+	})
+	var res []string
+	logs.Info("yyyy")
+	for obj := range objectCh {
+		logs.Info("xxxx", zap.Any("xxx", obj))
+		res = append(res, obj.Key)
+	}
+	return res, nil
 }
