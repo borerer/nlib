@@ -12,8 +12,9 @@
 
 ### GetKey
 ### SetKey
-### UpsertDocument
+### SaveDocument
 ### DeleteDocument
+### FindDocuments
 
 ## function
 

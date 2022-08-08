@@ -40,8 +40,7 @@ func (app *App) createRouter() error {
 	r.GET("/api/file/list", app.listFolderHandler)
 
 	r.GET("/api/kv/get", app.getKeyValueHandler)
-	r.GET("/api/kv/set")
-	r.PUT("/api/kv/set")
+	r.PUT("/api/kv/set", app.setKeyValueHandler)
 
 	r.GET("/api/db/:id")
 	r.PUT("/api/db/:id")
