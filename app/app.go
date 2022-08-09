@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"net/http"
+	"sync"
 
 	"github.com/borerer/nlib/configs"
 	"github.com/borerer/nlib/database"
@@ -12,13 +13,12 @@ import (
 )
 
 type App struct {
-	config *configs.AppConfig
-
-	ginRouter  *gin.Engine
-	httpServer *http.Server
-
+	config          *configs.AppConfig
+	ginRouter       *gin.Engine
+	httpServer      *http.Server
 	fileHelper      file.FileHelper
 	databaseManager *database.DatabaseManager
+	nlibClients     sync.Map
 }
 
 func NewApp(config *configs.AppConfig) *App {

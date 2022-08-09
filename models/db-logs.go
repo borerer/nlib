@@ -4,4 +4,6 @@ type DBLogs struct {
 	AppID             string      `json:"app_id" bson:"app_id"`
 	Message           string      `json:"message" bson:"message"`
 	StructuredMessage interface{} `json:"structured_message" bson:"structured_message"`
+	Level             string      `json:"level" bson:"level"`
+	Timestamp         int64       `json:"timestamp" bson:"timestamp"`
 }
