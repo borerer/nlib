@@ -5,17 +5,13 @@ import (
 	"net/http"
 
 	"github.com/borerer/nlib/database"
+	"github.com/borerer/nlib/models"
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/bson"
 )
 
-func getColName(appID string) string {
-	return fmt.Sprintf("%s_kv", appID)
-}
-
 func (app *App) getKey(appID string, key string) (string, error) {
-	var res []bson.M
-	colName := getColName(appID)
+	var res []models.DBKeyValue
+	colName := fmt.Sprintf("%s_kv", appID)
 	if err := app.databaseManager.FindDocuments(colName, database.FilterEquals("key", key), &res); err != nil {
 		return "", err
 	}
@@ -23,19 +19,14 @@ func (app *App) getKey(appID string, key string) (string, error) {
 		return "", nil
 	}
 	doc := res[0]
-	if val, ok := doc["value"]; ok {
-		if valStr, ok := val.(string); ok {
-			return valStr, nil
-		}
-	}
-	return "", nil
+	return doc.Value, nil
 }
 
 func (app *App) setKey(appID string, key string, value string) error {
-	colName := getColName(appID)
-	doc := bson.M{
-		"key":   key,
-		"value": value,
+	colName := fmt.Sprintf("%s_kv", appID)
+	doc := models.DBKeyValue{
+		Key:   key,
+		Value: value,
 	}
 	if err := app.databaseManager.UpdateDocument(colName, database.FilterEquals("key", key), doc); err != nil {
 		return err

@@ -45,7 +45,7 @@ func (app *App) createRouter() error {
 	r.GET("/api/db/:id")
 	r.PUT("/api/db/:id")
 
-	r.POST("/api/log", app.logHandler)
+	r.POST("/api/logs", app.addLogHandler)
 
 	app.ginRouter = r
 	return nil

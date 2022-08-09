@@ -1,20 +1,32 @@
 package app
 
 import (
+	"fmt"
 	"net/http"
 
-	"github.com/borerer/nlib/logs"
 	"github.com/borerer/nlib/models"
 	"github.com/gin-gonic/gin"
-	"go.uber.org/zap"
 )
 
-func (app *App) logHandler(c *gin.Context) {
-	var req models.LogRequest
-	if err := c.BindJSON(&req); err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
+func (app *App) addLog(appID string, msg string) error {
+	colName := fmt.Sprintf("%s_logs", appID)
+	doc := models.DBLogs{
+		AppID:   appID,
+		Message: msg,
+	}
+	if err := app.databaseManager.InsertDocument(colName, doc); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (app *App) addLogHandler(c *gin.Context) {
+	appID := c.Query("app")
+	msg := c.Query("msg")
+	err := app.addLog(appID, msg)
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
-	logs.Info("reg", zap.Any("req", req))
-	c.JSON(http.StatusOK, models.GeneralOK)
+	c.JSON(http.StatusOK, ResponseGeneralOK)
 }
