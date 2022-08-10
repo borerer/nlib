@@ -10,6 +10,7 @@ import (
 	"github.com/borerer/nlib/file"
 	"github.com/borerer/nlib/logs"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 type App struct {
@@ -62,4 +63,21 @@ func (app *App) Stop() error {
 		}
 	}
 	return nil
+}
+
+func (app *App) GetNLIBClient(appID string) *NLIBClient {
+	var client *NLIBClient
+	clientRaw, ok := app.nlibClients.Load(appID)
+	if ok {
+		client, ok = clientRaw.(*NLIBClient)
+		if !ok {
+			logs.Warn("unexpected get nlib client error", zap.String("appID", appID))
+			// fallback to create a new client instance
+		}
+	}
+	if client == nil {
+		client = NewNLIBClient(appID)
+		app.nlibClients.Store(appID, client)
+	}
+	return client
 }

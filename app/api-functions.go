@@ -3,63 +3,53 @@ package app
 import (
 	"net/http"
 
-	"github.com/borerer/nlib/logs"
-	"github.com/borerer/nlib/models"
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
-	"go.uber.org/zap"
 )
 
-const ()
-
-func (app *App) functionRegisterHandler(c *gin.Context) {
-	var req models.ReqFunctionRegister
-	if err := c.BindJSON(&req); err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
-		return
-	}
-	logs.Info("function register", zap.Any("req", req))
-	c.JSON(http.StatusOK, ResponseGeneralOK)
-}
+// func (app *App) saveRegisteredFunctionToDatabase(appID string, req *models.WebSocketRegisterFunction) error {
+// 	doc := models.DBAppFunction{
+// 		AppID: appID,
+// 		Func:  req.Func,
+// 	}
+// 	col := fmt.Sprintf("%s_functions", appID)
+// 	if err := app.databaseManager.InsertDocument(col, doc); err != nil {
+// 		return err
+// 	}
+// 	return nil
+// }
 
 func (app *App) appFunctionGetHandler(c *gin.Context) {
 	appID := c.Param("app")
+	client := app.GetNLIBClient(appID)
 	funcName := c.Param("func")
-
-	clientRaw, ok := app.nlibClients.Load(appID)
-	if !ok {
-		c.AbortWithStatus(http.StatusNotFound)
+	res, err := client.CallFunction(funcName, "")
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
-	if client, ok := clientRaw.(*NLIBClient); ok {
-		message := &models.ReqWSCallFunction{
-			ID:   uuid.NewString(),
-			Func: funcName,
-		}
-		client.Connection.WriteJSON(message)
-	}
+	c.String(http.StatusOK, res)
 }
 
-func (app *App) appFunctionPostHandler(c *gin.Context) {
-	appID := c.Param("app")
-	funcName := c.Param("func")
-	var payload interface{}
-	if err := c.BindJSON(&payload); err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
-	}
+// func (app *App) appFunctionPostHandler(c *gin.Context) {
+// 	appID := c.Param("app")
+// 	funcName := c.Param("func")
+// 	var payload interface{}
+// 	if err := c.BindJSON(&payload); err != nil {
+// 		c.AbortWithError(http.StatusBadRequest, err)
+// 		return
+// 	}
 
-	clientRaw, ok := app.nlibClients.Load(appID)
-	if !ok {
-		c.AbortWithStatus(http.StatusNotFound)
-		return
-	}
-	if client, ok := clientRaw.(*NLIBClient); ok {
-		message := &models.ReqWSCallFunction{
-			ID:      uuid.NewString(),
-			Func:    funcName,
-			Payload: payload,
-		}
-		client.Connection.WriteJSON(message)
-	}
-}
+// 	clientRaw, ok := app.nlibClients.Load(appID)
+// 	if !ok {
+// 		c.AbortWithStatus(http.StatusNotFound)
+// 		return
+// 	}
+// 	if client, ok := clientRaw.(*NLIBClient); ok {
+// 		message := &models.WebSocketCallFunction{
+// 			ID:      uuid.NewString(),
+// 			Func:    funcName,
+// 			Payload: payload,
+// 		}
+// 		client.connection.WriteJSON(message)
+// 	}
+// }

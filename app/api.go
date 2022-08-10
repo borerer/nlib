@@ -45,14 +45,12 @@ func (app *App) createRouter() error {
 	r.GET("/api/db/:id")
 	r.PUT("/api/db/:id")
 
-	r.GET("/api/function/register", app.functionRegisterHandler)
-
 	r.GET("/api/ws", app.websocketHandler)
 
 	r.POST("/api/logs", app.addLogHandler)
 
 	r.GET("/api/apps/:app/:func", app.appFunctionGetHandler)
-	r.POST("/api/apps/:app/:func", app.appFunctionPostHandler)
+	// r.POST("/api/apps/:app/:func", app.appFunctionPostHandler)
 
 	app.ginRouter = r
 	return nil
