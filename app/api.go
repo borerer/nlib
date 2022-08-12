@@ -50,7 +50,7 @@ func (app *App) createRouter() error {
 	r.POST("/api/logs", app.addLogHandler)
 
 	r.GET("/api/apps/:app/:func", app.appFunctionGetHandler)
-	// r.POST("/api/apps/:app/:func", app.appFunctionPostHandler)
+	r.POST("/api/apps/:app/:func", app.appFunctionPostHandler)
 
 	app.ginRouter = r
 	return nil

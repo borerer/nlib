@@ -69,7 +69,6 @@ func (c *NLIBClient) ListenWebSocketMessages() error {
 			logs.Warn("unexpected websocket message", zap.Any("message", message))
 		}
 	}
-	return nil
 }
 
 func (c *NLIBClient) SendWebSocketMessage(subType string, payload interface{}) (*models.WebSocketMessage, error) {

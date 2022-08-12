@@ -3,8 +3,10 @@ package app
 import (
 	"net/http"
 
+	"github.com/borerer/nlib/logs"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
+	"go.uber.org/zap"
 )
 
 var (
@@ -17,6 +19,7 @@ var (
 
 func (app *App) websocketHandler(c *gin.Context) {
 	appID := c.Query("app")
+	logs.Info("websocket connected", zap.String("appID", appID))
 	client := app.GetNLIBClient(appID)
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
