@@ -15,58 +15,93 @@ import (
 type NLIBClient struct {
 	appID                   string
 	connection              *websocket.Conn
+	messageCh               chan *models.WebSocketMessage
+	closeSignalCh           chan bool
 	pendingResponseChannels sync.Map
 }
 
 func NewNLIBClient(appID string) *NLIBClient {
-	return &NLIBClient{appID: appID}
+	c := &NLIBClient{appID: appID}
+	return c
 }
 
 func (c *NLIBClient) SetWebSocketConnection(conn *websocket.Conn) {
 	c.connection = conn
 }
 
-func (c *NLIBClient) ListenWebSocketMessages() error {
-	defer c.connection.Close()
-
-	handleRequest := func(req *models.WebSocketMessage) error {
-		switch req.SubType {
-		case models.WebSocketSubTypeStart:
-			logs.Info("websocket start", zap.String("appID", c.appID))
-			res := &models.WebSocketMessage{
-				MessageID:     uuid.NewString(),
-				PairMessageID: req.MessageID,
-				Type:          models.WebSocketTypeResponse,
-				SubType:       models.WebSocketSubTypeStart,
-				Timestamp:     time.Now().UnixMilli(),
-				Payload:       nil,
-			}
-			_ = c.connection.WriteJSON(res)
+func (c *NLIBClient) handleRequest(message *models.WebSocketMessage) error {
+	switch message.SubType {
+	case models.WebSocketSubTypeStart:
+		logs.Info("websocket start", zap.String("appID", c.appID))
+		res := &models.WebSocketMessage{
+			MessageID:     uuid.NewString(),
+			PairMessageID: message.MessageID,
+			Type:          models.WebSocketTypeResponse,
+			SubType:       models.WebSocketSubTypeStart,
+			Timestamp:     time.Now().UnixMilli(),
+			Payload:       nil,
 		}
+		_ = c.connection.WriteJSON(res)
+	}
+	return nil
+}
+
+func (c *NLIBClient) handleResponse(message *models.WebSocketMessage) error {
+	if chRaw, ok := c.pendingResponseChannels.Load(message.PairMessageID); ok {
+		if ch, ok := chRaw.(chan *models.WebSocketMessage); ok {
+			ch <- message
+		}
+	}
+	return nil
+}
+
+func (c *NLIBClient) handleClose(code int, text string) error {
+	logs.Info("websocket close", zap.String("appID", c.appID))
+	c.connection = nil
+	c.closeSignalCh <- true
+	return nil
+}
+
+func (c *NLIBClient) handleMessage(message *models.WebSocketMessage) error {
+	switch message.Type {
+	case models.WebSocketTypeRequest:
+		return c.handleRequest(message)
+	case models.WebSocketTypeResponse:
+		return c.handleResponse(message)
+	default:
+		logs.Warn("unexpected websocket message", zap.Any("message", message))
 		return nil
 	}
+}
 
-	handleResponse := func(res *models.WebSocketMessage) error {
-		if chRaw, ok := c.pendingResponseChannels.Load(res.PairMessageID); ok {
-			if ch, ok := chRaw.(chan *models.WebSocketMessage); ok {
-				ch <- res
-			}
-		}
-		return nil
-	}
-
+func (c *NLIBClient) readMessages() {
 	for {
 		var message models.WebSocketMessage
 		if err := c.connection.ReadJSON(&message); err != nil {
-			return err
+			if c.connection == nil {
+				// no-op
+			} else {
+				logs.Error("read websocket message error", zap.String("appID", c.appID), zap.Error(err))
+			}
+			return
 		}
-		switch message.Type {
-		case models.WebSocketTypeRequest:
-			handleRequest(&message)
-		case models.WebSocketTypeResponse:
-			handleResponse(&message)
-		default:
-			logs.Warn("unexpected websocket message", zap.Any("message", message))
+		c.messageCh <- &message
+	}
+}
+
+func (c *NLIBClient) ListenWebSocketMessages() error {
+	c.messageCh = make(chan *models.WebSocketMessage)
+	c.closeSignalCh = make(chan bool)
+	c.connection.SetCloseHandler(c.handleClose)
+
+	go c.readMessages()
+
+	for {
+		select {
+		case <-c.closeSignalCh:
+			return nil
+		case message := <-c.messageCh:
+			c.handleMessage(message)
 		}
 	}
 }
