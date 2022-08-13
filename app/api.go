@@ -47,7 +47,8 @@ func (app *App) createRouter() error {
 
 	r.GET("/api/ws", app.websocketHandler)
 
-	r.POST("/api/logs", app.addLogHandler)
+	r.GET("/api/logs", app.addLogGetHandler)
+	r.POST("/api/logs", app.addLogPostHandler)
 
 	r.GET("/api/apps/:app/:func", app.appFunctionGetHandler)
 	r.POST("/api/apps/:app/:func", app.appFunctionPostHandler)
