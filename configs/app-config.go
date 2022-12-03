@@ -8,45 +8,48 @@ import (
 )
 
 type AppConfig struct {
-	LogLevel string         `json:"log_level" mapstructure:"log_level"`
-	Addr     string         `json:"addr" mapstructure:"addr"`
-	Port     string         `json:"port" mapstructure:"port"`
-	File     FileConfig     `json:"file" mapstructure:"file"`
-	Database DatabaseConfig `json:"database" mapstructure:"database"`
-}
-
-type FileConfig struct {
-	Engine string      `json:"engine" mapstructure:"engine"`
-	Minio  MinioConfig `json:"minio" mapstructure:"minio"`
-	FS     FSConfig    `json:"fs" mapstructure:"fs"`
+	LogLevel string      `yaml:"log-level" mapstructure:"log-level"`
+	Addr     string      `yaml:"addr" mapstructure:"addr"`
+	Port     string      `yaml:"port" mapstructure:"port"`
+	Minio    MinioConfig `yaml:"minio" mapstructure:"minio"`
+	Mongo    MongoConfig `yaml:"mongo" mapstructure:"mongo"`
 }
 
 type MinioConfig struct {
-	Endpoint  string `json:"endpoint" mapstructure:"endpoint"`
-	AccessKey string `json:"access_key" mapstructure:"access_key"`
-	SecretKey string `json:"secret_key" mapstructure:"secret_key"`
-	UseSSL    bool   `json:"use_ssl" mapstructure:"use_ssl"`
-	Bucket    string `json:"bucket" mapstructure:"bucket"`
+	Endpoint  string `yaml:"endpoint" mapstructure:"endpoint"`
+	AccessKey string `yaml:"access-key" mapstructure:"access-key"`
+	SecretKey string `yaml:"secret-key" mapstructure:"secret-key"`
+	UseSSL    bool   `yaml:"use-ssl" mapstructure:"use-ssl"`
+	Bucket    string `yaml:"bucket" mapstructure:"bucket"`
 }
 
-type FSConfig struct {
-	Dir string `json:"dir" mapstructure:"dir"`
-}
-
-type DatabaseConfig struct {
-	Mongo    string `json:"mongo" mapstructure:"mongo"`
-	Database string `json:"database" mapstructure:"database"`
+type MongoConfig struct {
+	URI      string `yaml:"uri" mapstructure:"uri"`
+	Database string `yaml:"database" mapstructure:"database"`
 }
 
 func GetAppConfig() *AppConfig {
-	viper.AddConfigPath("data")
+	// config.yaml
+	viper.AddConfigPath(".")
 	viper.SetConfigName("config")
-	viper.SetConfigType("json")
+	viper.SetConfigType("yaml")
+
+	// env vars
+	// export NLIB_LOG_LEVEL=debug
+	// export NLIB_PORT=9502
+	// export NLIB_ADDR=0.0.0.0
+	// export NLIB_MINIO_ENDPOINT=
+	// export NLIB_MINIO_ACCESS_KEY=
+	// export NLIB_MINIO_SECRET_KEY=
+	// export NLIB_MINIO_USE_SSL=
+	// export NLIB_MINIO_BUCKET=
+	// export NLIB_MONGO_URI=
+	// export NLIB_MONGO_DATABASE=
 	viper.SetEnvPrefix("nlib")
-	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_", "-", "_"))
 	viper.AutomaticEnv()
-	viper.SetDefault("addr", "0.0.0.0")
-	viper.SetDefault("port", "9502")
+
+	// read config
 	utils.Must(viper.ReadInConfig())
 	var appConfig AppConfig
 	utils.Must(viper.Unmarshal(&appConfig))

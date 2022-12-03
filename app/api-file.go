@@ -14,7 +14,7 @@ func (app *App) getFileHandler(c *gin.Context) {
 	appID := c.Query("app")
 	file := c.Query("file")
 	filename := path.Join("apps", appID, file)
-	fileReader, err := app.fileHelper.GetFile(filename)
+	fileReader, err := app.minioClient.GetFile(filename)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -33,7 +33,7 @@ func (app *App) putFileHandler(c *gin.Context) {
 	file := c.Query("file")
 	filename := path.Join("apps", appID, file)
 	defer c.Request.Body.Close()
-	n, err := app.fileHelper.PutFile(filename, true, c.Request.Body)
+	n, err := app.minioClient.PutFile(filename, true, c.Request.Body)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -46,7 +46,7 @@ func (app *App) deleteFileHandler(c *gin.Context) {
 	appID := c.Query("app")
 	file := c.Query("file")
 	filename := path.Join("apps", appID, file)
-	err := app.fileHelper.DeleteFile(filename)
+	err := app.minioClient.DeleteFile(filename)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -59,7 +59,7 @@ func (app *App) fileStatsHandler(c *gin.Context) {
 	appID := c.Query("app")
 	file := c.Query("file")
 	filename := path.Join("apps", appID, file)
-	stats, err := app.fileHelper.HeadFile(filename)
+	stats, err := app.minioClient.HeadFile(filename)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -72,7 +72,7 @@ func (app *App) listFolderHandler(c *gin.Context) {
 	appID := c.Query("app")
 	folder := c.Query("folder")
 	prefix := path.Join("apps", appID, folder)
-	res, err := app.fileHelper.ListFolder(prefix)
+	res, err := app.minioClient.ListFolder(prefix)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return

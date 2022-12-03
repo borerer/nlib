@@ -18,7 +18,7 @@ func (app *App) addLog(appID string, level string, message string, details inter
 		Details:   details,
 		Timestamp: time.Now().UnixMilli(),
 	}
-	if err := app.databaseManager.InsertDocument(colName, doc); err != nil {
+	if err := app.mongoClient.InsertDocument(colName, doc); err != nil {
 		return err
 	}
 	return nil

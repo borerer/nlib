@@ -14,29 +14,29 @@ import (
 )
 
 type App struct {
-	config          *configs.AppConfig
-	ginRouter       *gin.Engine
-	httpServer      *http.Server
-	fileHelper      file.FileHelper
-	databaseManager *database.DatabaseManager
-	nlibClients     sync.Map
+	config      *configs.AppConfig
+	ginRouter   *gin.Engine
+	httpServer  *http.Server
+	minioClient *file.MinioClient
+	mongoClient *database.MongoClient
+	nlibClients sync.Map
 }
 
 func NewApp(config *configs.AppConfig) *App {
 	app := &App{
-		config: config,
+		config:      config,
+		minioClient: file.NewMinioClient(&config.Minio),
+		mongoClient: database.NewMongoClient(&config.Mongo),
 	}
 	return app
 }
 
 func (app *App) Start() error {
 	logs.Info("app start")
-	app.fileHelper = file.NewFileHelper(&app.config.File)
-	if err := app.fileHelper.Start(); err != nil {
+	if err := app.minioClient.Start(); err != nil {
 		return err
 	}
-	app.databaseManager = database.NewDatabaseManager(&app.config.Database)
-	if err := app.databaseManager.Start(); err != nil {
+	if err := app.mongoClient.Start(); err != nil {
 		return err
 	}
 	if err := app.startAPI(); err != nil {
@@ -52,13 +52,13 @@ func (app *App) Stop() error {
 			return err
 		}
 	}
-	if app.databaseManager != nil {
-		if err := app.databaseManager.Stop(); err != nil {
+	if app.mongoClient != nil {
+		if err := app.mongoClient.Stop(); err != nil {
 			return err
 		}
 	}
-	if app.fileHelper != nil {
-		if err := app.fileHelper.Stop(); err != nil {
+	if app.minioClient != nil {
+		if err := app.minioClient.Stop(); err != nil {
 			return err
 		}
 	}

@@ -1,0 +1,12 @@
+log-level: debug
+addr: 0.0.0.0
+port: 9502
+minio:
+  endpoint:
+  access-key:
+  secret-key:
+  use-ssl: true
+  bucket: nlib
+mongo:
+  uri:
+  database: nlib
