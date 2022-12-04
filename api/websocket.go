@@ -24,12 +24,12 @@ func (api *API) websocketHandler(c *gin.Context) {
 	client := api.getApp(appID)
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
+		abort500(c, err)
 		return
 	}
 	client.SetWebSocketConnection(conn)
 	if err := client.ListenWebSocketMessages(); err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
+		abort500(c, err)
 		return
 	}
 	c.JSON(http.StatusOK, ResponseGeneralOK)

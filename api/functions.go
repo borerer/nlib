@@ -14,7 +14,7 @@ func (api *API) appFunctionGetHandler(c *gin.Context) {
 	params := c.Query("params")
 	res, err := client.CallFunction(funcName, params)
 	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
+		abort500(c, err)
 		return
 	}
 	c.String(http.StatusOK, res)
@@ -27,13 +27,13 @@ func (api *API) appFunctionPostHandler(c *gin.Context) {
 	defer c.Request.Body.Close()
 	buf, err := io.ReadAll(c.Request.Body)
 	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
+		abort500(c, err)
 		return
 	}
 	params := string(buf)
 	res, err := client.CallFunction(funcName, params)
 	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
+		abort500(c, err)
 		return
 	}
 	c.String(http.StatusOK, res)

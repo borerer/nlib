@@ -13,10 +13,10 @@ func (api *API) getKeyValueHandler(c *gin.Context) {
 	key := c.Query("key")
 	val, err := api.mongoClient.GetKey(appID, key)
 	if errors.Is(err, database.ErrNoDocuments) {
-		c.AbortWithStatus(http.StatusNotFound)
+		abort404(c, err)
 		return
 	} else if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
+		abort500(c, err)
 		return
 	}
 	c.String(http.StatusOK, val)
@@ -28,7 +28,7 @@ func (api *API) setKeyValueHandler(c *gin.Context) {
 	value := c.Query("value")
 	err := api.mongoClient.SetKey(appID, key, value)
 	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
+		abort500(c, err)
 		return
 	}
 	c.JSON(http.StatusOK, ResponseGeneralOK)

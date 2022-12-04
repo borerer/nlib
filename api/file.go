@@ -35,7 +35,7 @@ func (api *API) putFileHandler(c *gin.Context) {
 	defer c.Request.Body.Close()
 	n, err := api.minioClient.PutFile(filename, true, c.Request.Body)
 	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
+		abort500(c, err)
 		return
 	}
 	logs.Info("put file", zap.String("file", filename), zap.Int64("size", n))
@@ -48,7 +48,7 @@ func (api *API) deleteFileHandler(c *gin.Context) {
 	filename := path.Join("apps", appID, file)
 	err := api.minioClient.DeleteFile(filename)
 	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
+		abort500(c, err)
 		return
 	}
 	logs.Info("delete file", zap.String("file", filename))
@@ -61,7 +61,7 @@ func (api *API) fileStatsHandler(c *gin.Context) {
 	filename := path.Join("apps", appID, file)
 	stats, err := api.minioClient.HeadFile(filename)
 	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
+		abort500(c, err)
 		return
 	}
 	logs.Info("file stats", zap.String("file", filename))
@@ -74,7 +74,7 @@ func (api *API) listFolderHandler(c *gin.Context) {
 	prefix := path.Join("apps", appID, folder)
 	res, err := api.minioClient.ListFolder(prefix)
 	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
+		abort500(c, err)
 		return
 	}
 	logs.Info("list folder", zap.String("prefix", prefix))

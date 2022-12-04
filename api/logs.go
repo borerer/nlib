@@ -48,7 +48,7 @@ func (api *API) addLogGetHandler(c *gin.Context) {
 	}
 	err := api.addLog(appID, level, message, details)
 	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
+		abort500(c, err)
 		return
 	}
 	c.JSON(http.StatusOK, ResponseGeneralOK)
@@ -59,12 +59,12 @@ func (api *API) addLogPostHandler(c *gin.Context) {
 	var req models.APIAddLogRequest
 	err := c.BindJSON(&req)
 	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
+		abort500(c, err)
 		return
 	}
 	err = api.addLog(appID, req.Level, req.Message, req.Details)
 	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
+		abort500(c, err)
 		return
 	}
 	c.JSON(http.StatusOK, ResponseGeneralOK)
