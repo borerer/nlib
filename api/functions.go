@@ -1,4 +1,4 @@
-package app
+package api
 
 import (
 	"io"
@@ -7,9 +7,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (app *App) appFunctionGetHandler(c *gin.Context) {
+func (api *API) appFunctionGetHandler(c *gin.Context) {
 	appID := c.Param("app")
-	client := app.GetNLIBClient(appID)
+	client := api.getApp(appID)
 	funcName := c.Param("func")
 	params := c.Query("params")
 	res, err := client.CallFunction(funcName, params)
@@ -20,9 +20,9 @@ func (app *App) appFunctionGetHandler(c *gin.Context) {
 	c.String(http.StatusOK, res)
 }
 
-func (app *App) appFunctionPostHandler(c *gin.Context) {
+func (api *API) appFunctionPostHandler(c *gin.Context) {
 	appID := c.Param("app")
-	client := app.GetNLIBClient(appID)
+	client := api.getApp(appID)
 	funcName := c.Param("func")
 	defer c.Request.Body.Close()
 	buf, err := io.ReadAll(c.Request.Body)

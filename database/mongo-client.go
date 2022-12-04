@@ -8,7 +8,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"go.uber.org/zap"
 )
 
 type MongoClient struct {
@@ -27,7 +26,6 @@ func (mc *MongoClient) connect() error {
 		return nil
 	}
 	var err error
-	logs.Info("create mongo client", zap.String("host", mc.config.URI))
 	mc.client, err = mongo.Connect(context.Background(), options.Client().ApplyURI(mc.config.URI))
 	if err != nil {
 		return err
@@ -36,7 +34,7 @@ func (mc *MongoClient) connect() error {
 }
 
 func (mc *MongoClient) Start() error {
-	logs.Info("database manager start")
+	logs.Info("start mongo client")
 	if err := mc.connect(); err != nil {
 		return err
 	}

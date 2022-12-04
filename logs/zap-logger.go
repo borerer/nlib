@@ -9,7 +9,7 @@ var (
 	logger *zap.Logger
 )
 
-func Init(config *configs.AppConfig) error {
+func Init(config *configs.ServerConfig) error {
 	var err error
 	var level zap.AtomicLevel
 	level, err = zap.ParseAtomicLevel(config.LogLevel)

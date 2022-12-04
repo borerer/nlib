@@ -1,7 +1,10 @@
 package database
 
 import (
+	"errors"
 	"time"
+
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 const (
@@ -31,11 +34,14 @@ func (mc *MongoClient) SetKey(appID string, key string, value string) error {
 }
 
 // returned error:
-//  1. mongo.ErrNoDocuments
+//  1. ErrNoDocuments
 //  2. others
 func (mc *MongoClient) GetKey(appID string, key string) (string, error) {
 	var doc DBKV
-	if err := mc.FindOneDocument(CollectionKV, FilterEquals("key", key), &doc); err != nil {
+	err := mc.FindOneDocument(CollectionKV, FilterEquals("key", key), &doc)
+	if errors.Is(err, mongo.ErrNoDocuments) {
+		return "", ErrNoDocuments
+	} else if err != nil {
 		return "", err
 	}
 	return doc.Value, nil

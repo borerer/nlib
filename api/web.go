@@ -1,4 +1,4 @@
-package app
+package api
 
 import (
 	"net/http"
@@ -6,6 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (app *App) getHomepageHandler(c *gin.Context) {
+func (api *API) getHomepageHandler(c *gin.Context) {
 	c.String(http.StatusOK, "good")
 }

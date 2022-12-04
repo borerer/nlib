@@ -1,18 +1,18 @@
-package app
+package api
 
 import (
 	"errors"
 	"net/http"
 
+	"github.com/borerer/nlib/database"
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func (app *App) getKeyValueHandler(c *gin.Context) {
+func (api *API) getKeyValueHandler(c *gin.Context) {
 	appID := c.Query("app")
 	key := c.Query("key")
-	val, err := app.mongoClient.GetKey(appID, key)
-	if errors.Is(err, mongo.ErrNoDocuments) {
+	val, err := api.mongoClient.GetKey(appID, key)
+	if errors.Is(err, database.ErrNoDocuments) {
 		c.AbortWithStatus(http.StatusNotFound)
 		return
 	} else if err != nil {
@@ -22,11 +22,11 @@ func (app *App) getKeyValueHandler(c *gin.Context) {
 	c.String(http.StatusOK, val)
 }
 
-func (app *App) setKeyValueHandler(c *gin.Context) {
+func (api *API) setKeyValueHandler(c *gin.Context) {
 	appID := c.Query("app")
 	key := c.Query("key")
 	value := c.Query("value")
-	err := app.mongoClient.SetKey(appID, key, value)
+	err := api.mongoClient.SetKey(appID, key, value)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return

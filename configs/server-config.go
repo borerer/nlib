@@ -7,12 +7,16 @@ import (
 	"github.com/spf13/viper"
 )
 
-type AppConfig struct {
+type ServerConfig struct {
 	LogLevel string      `yaml:"log-level" mapstructure:"log-level"`
-	Addr     string      `yaml:"addr" mapstructure:"addr"`
-	Port     string      `yaml:"port" mapstructure:"port"`
+	API      APIConfig   `yaml:"api" mapstructure:"api"`
 	Minio    MinioConfig `yaml:"minio" mapstructure:"minio"`
 	Mongo    MongoConfig `yaml:"mongo" mapstructure:"mongo"`
+}
+
+type APIConfig struct {
+	Addr string `yaml:"addr" mapstructure:"addr"`
+	Port string `yaml:"port" mapstructure:"port"`
 }
 
 type MinioConfig struct {
@@ -28,7 +32,7 @@ type MongoConfig struct {
 	Database string `yaml:"database" mapstructure:"database"`
 }
 
-func GetAppConfig() *AppConfig {
+func GetServerConfig() *ServerConfig {
 	// config.yaml
 	viper.AddConfigPath(".")
 	viper.SetConfigName("config")
@@ -36,8 +40,8 @@ func GetAppConfig() *AppConfig {
 
 	// env vars
 	// export NLIB_LOG_LEVEL=debug
-	// export NLIB_PORT=9502
-	// export NLIB_ADDR=0.0.0.0
+	// export NLIB_API_PORT=9502
+	// export NLIB_API_ADDR=0.0.0.0
 	// export NLIB_MINIO_ENDPOINT=
 	// export NLIB_MINIO_ACCESS_KEY=
 	// export NLIB_MINIO_SECRET_KEY=
@@ -51,7 +55,7 @@ func GetAppConfig() *AppConfig {
 
 	// read config
 	utils.Must(viper.ReadInConfig())
-	var appConfig AppConfig
-	utils.Must(viper.Unmarshal(&appConfig))
-	return &appConfig
+	var serverConfig ServerConfig
+	utils.Must(viper.Unmarshal(&serverConfig))
+	return &serverConfig
 }

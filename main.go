@@ -1,10 +1,10 @@
 package main
 
 import (
-	"github.com/borerer/nlib/app"
 	"github.com/borerer/nlib/configs"
+	"github.com/borerer/nlib/server"
 )
 
 func main() {
-	app.Run(configs.GetAppConfig())
+	server.Run(configs.GetServerConfig())
 }

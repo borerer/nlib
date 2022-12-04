@@ -38,7 +38,7 @@ func (mc *MinioClient) initClient() error {
 }
 
 func (mc *MinioClient) Start() error {
-	logs.Info("file minio start")
+	logs.Info("start minio client")
 	if err := mc.initClient(); err != nil {
 		return err
 	}
@@ -50,20 +50,16 @@ func (mc *MinioClient) Stop() error {
 }
 
 func (mc *MinioClient) GetFile(filename string) (io.ReadCloser, error) {
-	if err := mc.initClient(); err != nil {
-		return nil, err
-	}
 	obj, err := mc.client.GetObject(context.Background(), mc.config.Bucket, filename, minio.GetObjectOptions{})
 	if err != nil {
+		println("123")
+		println(err.Error())
 		return nil, err
 	}
 	return obj, nil
 }
 
 func (mc *MinioClient) PutFile(filename string, override bool, fileReader io.Reader) (int64, error) {
-	if err := mc.initClient(); err != nil {
-		return 0, err
-	}
 	info, err := mc.client.PutObject(context.Background(), mc.config.Bucket, filename, fileReader, -1, minio.PutObjectOptions{})
 	if err != nil {
 		return 0, err
@@ -72,9 +68,6 @@ func (mc *MinioClient) PutFile(filename string, override bool, fileReader io.Rea
 }
 
 func (mc *MinioClient) DeleteFile(filename string) error {
-	if err := mc.initClient(); err != nil {
-		return err
-	}
 	err := mc.client.RemoveObject(context.Background(), mc.config.Bucket, filename, minio.RemoveObjectOptions{})
 	if err != nil {
 		return err
@@ -83,9 +76,6 @@ func (mc *MinioClient) DeleteFile(filename string) error {
 }
 
 func (mc *MinioClient) HeadFile(filename string) (*FileInfo, error) {
-	if err := mc.initClient(); err != nil {
-		return nil, err
-	}
 	info, err := mc.client.StatObject(context.Background(), mc.config.Bucket, filename, minio.GetObjectOptions{})
 	if err != nil {
 		return nil, err
@@ -98,9 +88,6 @@ func (mc *MinioClient) HeadFile(filename string) (*FileInfo, error) {
 }
 
 func (mc *MinioClient) ListFolder(folder string) ([]string, error) {
-	if err := mc.initClient(); err != nil {
-		return nil, err
-	}
 	objectCh := mc.client.ListObjects(context.Background(), mc.config.Bucket, minio.ListObjectsOptions{
 		Prefix:    folder,
 		Recursive: false,

@@ -1,4 +1,4 @@
-package app
+package api
 
 import (
 	"io"
@@ -10,30 +10,30 @@ import (
 	"go.uber.org/zap"
 )
 
-func (app *App) getFileHandler(c *gin.Context) {
+func (api *API) getFileHandler(c *gin.Context) {
 	appID := c.Query("app")
 	file := c.Query("file")
 	filename := path.Join("apps", appID, file)
-	fileReader, err := app.minioClient.GetFile(filename)
+	fileReader, err := api.minioClient.GetFile(filename)
 	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
+		abort500(c, err)
 		return
 	}
 	defer fileReader.Close()
 	n, err := io.Copy(c.Writer, fileReader)
 	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
+		abort500(c, err)
 		return
 	}
 	logs.Info("get file", zap.String("filename", filename), zap.Int64("size", n))
 }
 
-func (app *App) putFileHandler(c *gin.Context) {
+func (api *API) putFileHandler(c *gin.Context) {
 	appID := c.Query("app")
 	file := c.Query("file")
 	filename := path.Join("apps", appID, file)
 	defer c.Request.Body.Close()
-	n, err := app.minioClient.PutFile(filename, true, c.Request.Body)
+	n, err := api.minioClient.PutFile(filename, true, c.Request.Body)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -42,11 +42,11 @@ func (app *App) putFileHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, ResponseGeneralOK)
 }
 
-func (app *App) deleteFileHandler(c *gin.Context) {
+func (api *API) deleteFileHandler(c *gin.Context) {
 	appID := c.Query("app")
 	file := c.Query("file")
 	filename := path.Join("apps", appID, file)
-	err := app.minioClient.DeleteFile(filename)
+	err := api.minioClient.DeleteFile(filename)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -55,11 +55,11 @@ func (app *App) deleteFileHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, ResponseGeneralOK)
 }
 
-func (app *App) fileStatsHandler(c *gin.Context) {
+func (api *API) fileStatsHandler(c *gin.Context) {
 	appID := c.Query("app")
 	file := c.Query("file")
 	filename := path.Join("apps", appID, file)
-	stats, err := app.minioClient.HeadFile(filename)
+	stats, err := api.minioClient.HeadFile(filename)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -68,11 +68,11 @@ func (app *App) fileStatsHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, stats)
 }
 
-func (app *App) listFolderHandler(c *gin.Context) {
+func (api *API) listFolderHandler(c *gin.Context) {
 	appID := c.Query("app")
 	folder := c.Query("folder")
 	prefix := path.Join("apps", appID, folder)
-	res, err := app.minioClient.ListFolder(prefix)
+	res, err := api.minioClient.ListFolder(prefix)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return

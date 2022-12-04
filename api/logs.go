@@ -1,4 +1,4 @@
-package app
+package api
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (app *App) addLog(appID string, level string, message string, details interface{}) error {
+func (api *API) addLog(appID string, level string, message string, details interface{}) error {
 	colName := fmt.Sprintf("%s_logs", appID)
 	doc := models.DBLogs{
 		AppID:     appID,
@@ -18,13 +18,13 @@ func (app *App) addLog(appID string, level string, message string, details inter
 		Details:   details,
 		Timestamp: time.Now().UnixMilli(),
 	}
-	if err := app.mongoClient.InsertDocument(colName, doc); err != nil {
+	if err := api.mongoClient.InsertDocument(colName, doc); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (app *App) addLogGetHandler(c *gin.Context) {
+func (api *API) addLogGetHandler(c *gin.Context) {
 	appID := c.Query("app")
 	level := "info"
 	message := ""
@@ -46,7 +46,7 @@ func (app *App) addLogGetHandler(c *gin.Context) {
 			}
 		}
 	}
-	err := app.addLog(appID, level, message, details)
+	err := api.addLog(appID, level, message, details)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -54,7 +54,7 @@ func (app *App) addLogGetHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, ResponseGeneralOK)
 }
 
-func (app *App) addLogPostHandler(c *gin.Context) {
+func (api *API) addLogPostHandler(c *gin.Context) {
 	appID := c.Query("app")
 	var req models.APIAddLogRequest
 	err := c.BindJSON(&req)
@@ -62,7 +62,7 @@ func (app *App) addLogPostHandler(c *gin.Context) {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
-	err = app.addLog(appID, req.Level, req.Message, req.Details)
+	err = api.addLog(appID, req.Level, req.Message, req.Details)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
