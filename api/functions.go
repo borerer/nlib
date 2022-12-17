@@ -8,11 +8,10 @@ import (
 )
 
 func (api *API) appFunctionGetHandler(c *gin.Context) {
-	appID := c.Param("app")
-	client := api.getApp(appID)
+	clientID := c.Param("id")
 	funcName := c.Param("func")
 	params := c.Query("params")
-	res, err := client.CallFunction(funcName, params)
+	res, err := api.socketManager.CallFunction(clientID, funcName, params)
 	if err != nil {
 		abort500(c, err)
 		return
@@ -21,8 +20,7 @@ func (api *API) appFunctionGetHandler(c *gin.Context) {
 }
 
 func (api *API) appFunctionPostHandler(c *gin.Context) {
-	appID := c.Param("app")
-	client := api.getApp(appID)
+	clientID := c.Param("id")
 	funcName := c.Param("func")
 	defer c.Request.Body.Close()
 	buf, err := io.ReadAll(c.Request.Body)
@@ -31,7 +29,7 @@ func (api *API) appFunctionPostHandler(c *gin.Context) {
 		return
 	}
 	params := string(buf)
-	res, err := client.CallFunction(funcName, params)
+	res, err := api.socketManager.CallFunction(clientID, funcName, params)
 	if err != nil {
 		abort500(c, err)
 		return

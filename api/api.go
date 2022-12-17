@@ -4,23 +4,23 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"sync"
 
 	"github.com/borerer/nlib/configs"
 	"github.com/borerer/nlib/database"
 	"github.com/borerer/nlib/file"
 	"github.com/borerer/nlib/logs"
+	"github.com/borerer/nlib/socket"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
 
 type API struct {
-	config      *configs.APIConfig
-	minioClient *file.MinioClient
-	mongoClient *database.MongoClient
-	ginRouter   *gin.Engine
-	httpServer  *http.Server
-	clients     sync.Map
+	config        *configs.APIConfig
+	minioClient   *file.MinioClient
+	mongoClient   *database.MongoClient
+	socketManager *socket.ClientsManager
+	ginRouter     *gin.Engine
+	httpServer    *http.Server
 }
 
 func NewAPI(config *configs.APIConfig, minioClient *file.MinioClient, mongoClient *database.MongoClient) *API {
@@ -28,6 +28,7 @@ func NewAPI(config *configs.APIConfig, minioClient *file.MinioClient, mongoClien
 	api.config = config
 	api.minioClient = minioClient
 	api.mongoClient = mongoClient
+	api.socketManager = socket.NewClientsManager()
 	return api
 }
 

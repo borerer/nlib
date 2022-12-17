@@ -41,8 +41,8 @@ func (api *API) createRouter() error {
 	r.GET("/api/logs", api.addLogGetHandler)
 	r.POST("/api/logs", api.addLogPostHandler)
 
-	r.GET("/api/apps/:app/:func", api.appFunctionGetHandler)
-	r.POST("/api/apps/:app/:func", api.appFunctionPostHandler)
+	r.GET("/api/remote/:id/:func", api.appFunctionGetHandler)
+	r.POST("/api/remote/:id/:func", api.appFunctionPostHandler)
 
 	api.ginRouter = r
 	return nil
