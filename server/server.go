@@ -3,7 +3,6 @@ package server
 import (
 	"github.com/borerer/nlib/api"
 	"github.com/borerer/nlib/configs"
-	"github.com/borerer/nlib/database"
 	"github.com/borerer/nlib/file"
 	"github.com/borerer/nlib/logs"
 	"github.com/borerer/nlib/utils"
@@ -13,7 +12,6 @@ import (
 type Server struct {
 	config      *configs.ServerConfig
 	minioClient *file.MinioClient
-	mongoClient *database.MongoClient
 	api         *api.API
 }
 
@@ -21,17 +19,13 @@ func NewServer(config *configs.ServerConfig) *Server {
 	server := &Server{}
 	server.config = config
 	server.minioClient = file.NewMinioClient(&config.Minio)
-	server.mongoClient = database.NewMongoClient(&config.Mongo)
-	server.api = api.NewAPI(&config.API, server.minioClient, server.mongoClient)
+	server.api = api.NewAPI(&config.API, server.minioClient)
 	return server
 }
 
 func (server *Server) Start() error {
 	logs.Info("start server")
 	if err := server.minioClient.Start(); err != nil {
-		return err
-	}
-	if err := server.mongoClient.Start(); err != nil {
 		return err
 	}
 	if err := server.api.Start(); err != nil {
@@ -44,11 +38,6 @@ func (server *Server) Stop() error {
 	logs.Info("stop server")
 	if server.api != nil {
 		if err := server.api.Stop(); err != nil {
-			return err
-		}
-	}
-	if server.mongoClient != nil {
-		if err := server.mongoClient.Stop(); err != nil {
 			return err
 		}
 	}

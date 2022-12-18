@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/borerer/nlib/configs"
-	"github.com/borerer/nlib/database"
 	"github.com/borerer/nlib/file"
 	"github.com/borerer/nlib/logs"
 	"github.com/borerer/nlib/socket"
@@ -17,17 +16,15 @@ import (
 type API struct {
 	config        *configs.APIConfig
 	minioClient   *file.MinioClient
-	mongoClient   *database.MongoClient
 	socketManager *socket.ClientsManager
 	ginRouter     *gin.Engine
 	httpServer    *http.Server
 }
 
-func NewAPI(config *configs.APIConfig, minioClient *file.MinioClient, mongoClient *database.MongoClient) *API {
+func NewAPI(config *configs.APIConfig, minioClient *file.MinioClient) *API {
 	api := &API{}
 	api.config = config
 	api.minioClient = minioClient
-	api.mongoClient = mongoClient
 	api.socketManager = socket.NewClientsManager()
 	return api
 }
