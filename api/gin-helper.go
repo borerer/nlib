@@ -17,3 +17,15 @@ func abort404(c *gin.Context, err error) {
 	logs.GetZapLogger().Error("abort 404", zap.Error(err))
 	c.AbortWithError(http.StatusNotFound, err)
 }
+
+func queryToMap(c *gin.Context) map[string]interface{} {
+	ret := map[string]interface{}{}
+	for k, v := range c.Request.URL.Query() {
+		if len(v) == 1 {
+			ret[k] = v[0]
+		} else {
+			ret[k] = v
+		}
+	}
+	return ret
+}

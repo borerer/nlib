@@ -56,7 +56,7 @@ func (client *Client) handleResponse(message *models.WebSocketMessage) error {
 }
 
 func (client *Client) handleClose(code int, text string) error {
-	logs.Info("websocket close", zap.String("clientID", client.clientID))
+	logs.Info("websocket disconnected", zap.String("appID", client.clientID))
 	client.connection = nil
 	client.closeSignalCh <- true
 	return nil
@@ -81,7 +81,7 @@ func (client *Client) readMessages() {
 			if client.connection == nil {
 				// no-op
 			} else {
-				logs.Error("read websocket message error", zap.String("clientID", client.clientID), zap.Error(err))
+				logs.Error("read websocket message error", zap.String("appID", client.clientID), zap.Error(err))
 			}
 			return
 		}
@@ -90,6 +90,7 @@ func (client *Client) readMessages() {
 }
 
 func (client *Client) ListenWebSocketMessages() error {
+	logs.Info("websocket connected", zap.String("appID", client.clientID))
 	client.messageCh = make(chan *models.WebSocketMessage)
 	client.closeSignalCh = make(chan bool)
 	client.connection.SetCloseHandler(client.handleClose)
@@ -124,18 +125,18 @@ func (client *Client) SendWebSocketMessage(subType string, payload interface{}) 
 	return res, nil
 }
 
-func (client *Client) CallFunction(funcName string, params string) (string, error) {
+func (client *Client) CallFunction(funcName string, params map[string]interface{}) (map[string]interface{}, error) {
 	funcReq := &models.WebSocketCallFunctionReq{
 		FuncName: funcName,
 		Params:   params,
 	}
 	res, err := client.SendWebSocketMessage(models.WebSocketSubTypeCallFunction, funcReq)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	var funcRes models.WebSocketCallFunctionRes
 	if err = mapstructure.Decode(res.Payload, &funcRes); err != nil {
-		return "", err
+		return nil, err
 	}
 	return funcRes.Response, nil
 }

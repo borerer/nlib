@@ -36,13 +36,12 @@ func (api *API) createRouter() error {
 	r.GET("/api/db/:id")
 	r.PUT("/api/db/:id")
 
-	r.GET("/api/ws", api.websocketHandler)
-
 	r.GET("/api/logs", api.addLogGetHandler)
 	r.POST("/api/logs", api.addLogPostHandler)
 
-	r.GET("/api/remote/:id/:func", api.appFunctionGetHandler)
-	r.POST("/api/remote/:id/:func", api.appFunctionPostHandler)
+	r.GET("/api/app/:id/ws", api.websocketHandler)
+	r.GET("/api/app/:id/:func", api.appFunctionGetHandler)
+	r.POST("/api/app/:id/:func", api.appFunctionPostHandler)
 
 	api.ginRouter = r
 	return nil

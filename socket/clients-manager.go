@@ -23,7 +23,7 @@ func (m *ClientsManager) StartConnection(clientID string, conn *websocket.Conn) 
 	return client.ListenWebSocketMessages()
 }
 
-func (m *ClientsManager) CallFunction(clientID string, funcName string, params string) (string, error) {
+func (m *ClientsManager) CallFunction(clientID string, funcName string, params map[string]interface{}) (map[string]interface{}, error) {
 	client := m.getSocketClient(clientID)
 	return client.CallFunction(funcName, params)
 }
