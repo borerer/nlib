@@ -30,9 +30,6 @@ func (api *API) createRouter() error {
 	r.GET("/api/file/stats", api.fileStatsHandler)
 	r.GET("/api/file/list", api.listFolderHandler)
 
-	r.GET("/api/kv/get", api.getKeyValueHandler)
-	r.PUT("/api/kv/set", api.setKeyValueHandler)
-
 	r.GET("/api/db/:id")
 	r.PUT("/api/db/:id")
 
