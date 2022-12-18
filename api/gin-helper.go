@@ -18,6 +18,15 @@ func abort404(c *gin.Context, err error) {
 	c.AbortWithError(http.StatusNotFound, err)
 }
 
+func any200(c *gin.Context, v interface{}) {
+	switch t := v.(type) {
+	case string:
+		c.String(http.StatusOK, t)
+	default:
+		c.JSON(http.StatusOK, t)
+	}
+}
+
 func queryToMap(c *gin.Context) map[string]interface{} {
 	ret := map[string]interface{}{}
 	for k, v := range c.Request.URL.Query() {

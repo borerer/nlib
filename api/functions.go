@@ -1,8 +1,6 @@
 package api
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,7 +13,7 @@ func (api *API) appFunctionGetHandler(c *gin.Context) {
 		abort500(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, res)
+	any200(c, res)
 }
 
 func (api *API) appFunctionPostHandler(c *gin.Context) {
@@ -28,5 +26,5 @@ func (api *API) appFunctionPostHandler(c *gin.Context) {
 		abort500(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, res)
+	any200(c, res)
 }

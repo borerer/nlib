@@ -125,7 +125,7 @@ func (client *Client) SendWebSocketMessage(subType string, payload interface{}) 
 	return res, nil
 }
 
-func (client *Client) CallFunction(funcName string, params map[string]interface{}) (map[string]interface{}, error) {
+func (client *Client) CallFunction(funcName string, params map[string]interface{}) (interface{}, error) {
 	funcReq := &models.WebSocketCallFunctionReq{
 		FuncName: funcName,
 		Params:   params,
