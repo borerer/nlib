@@ -24,12 +24,6 @@ func (api *API) createRouter() error {
 
 	r.GET("/", api.getHomepageHandler)
 
-	r.GET("/api/file/get", api.getFileHandler)
-	r.PUT("/api/file/put", api.putFileHandler)
-	r.DELETE("/api/file/delete", api.deleteFileHandler)
-	r.GET("/api/file/stats", api.fileStatsHandler)
-	r.GET("/api/file/list", api.listFolderHandler)
-
 	r.GET("/api/app/:id/ws", api.websocketHandler)
 	r.GET("/api/app/:id/:func", api.appFunctionGetHandler)
 	r.POST("/api/app/:id/:func", api.appFunctionPostHandler)
