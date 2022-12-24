@@ -1,6 +1,8 @@
 package socket
 
 import (
+	"io"
+	"strings"
 	"sync"
 	"time"
 
@@ -55,11 +57,16 @@ func (client *Client) handleResponse(message *models.WebSocketMessage) error {
 	return nil
 }
 
-func (client *Client) handleClose(code int, text string) error {
-	logs.Info("websocket disconnected", zap.String("appID", client.clientID))
+func (client *Client) socketCloseHandler(code int, text string) error {
+	logs.Info("websocket close handler called", zap.String("appID", client.clientID))
+	client.handleClose()
+	return nil
+}
+
+func (client *Client) handleClose() {
+	logs.Info("handle websocket close", zap.String("appID", client.clientID))
 	client.connection = nil
 	client.closeSignalCh <- true
-	return nil
 }
 
 func (client *Client) handleMessage(message *models.WebSocketMessage) error {
@@ -81,7 +88,12 @@ func (client *Client) readMessages() {
 			if client.connection == nil {
 				// no-op
 			} else {
-				logs.Error("read websocket message error", zap.String("appID", client.clientID), zap.Error(err))
+				// errUnexpectedEOF
+				if strings.Contains(err.Error(), io.ErrUnexpectedEOF.Error()) {
+					client.handleClose()
+				} else {
+					logs.Error("read websocket message error", zap.String("appID", client.clientID), zap.Error(err))
+				}
 			}
 			return
 		}
@@ -93,7 +105,7 @@ func (client *Client) ListenWebSocketMessages() error {
 	logs.Info("websocket connected", zap.String("appID", client.clientID))
 	client.messageCh = make(chan *models.WebSocketMessage)
 	client.closeSignalCh = make(chan bool)
-	client.connection.SetCloseHandler(client.handleClose)
+	client.connection.SetCloseHandler(client.socketCloseHandler)
 
 	go client.readMessages()
 
