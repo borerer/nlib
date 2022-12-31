@@ -5,24 +5,24 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/borerer/nlib/app"
 	"github.com/borerer/nlib/configs"
 	"github.com/borerer/nlib/logs"
-	"github.com/borerer/nlib/socket"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
 
 type API struct {
-	config        *configs.APIConfig
-	socketManager *socket.ClientsManager
-	ginRouter     *gin.Engine
-	httpServer    *http.Server
+	config     *configs.APIConfig
+	appManager *app.AppManager
+	ginRouter  *gin.Engine
+	httpServer *http.Server
 }
 
 func NewAPI(config *configs.APIConfig) *API {
 	api := &API{}
 	api.config = config
-	api.socketManager = socket.NewClientsManager()
+	api.appManager = app.NewAppManager()
 	return api
 }
 

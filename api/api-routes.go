@@ -25,8 +25,7 @@ func (api *API) createRouter() error {
 	r.GET("/", api.getHomepageHandler)
 
 	r.GET("/api/app/:id/ws", api.websocketHandler)
-	r.GET("/api/app/:id/:func", api.appFunctionGetHandler)
-	r.POST("/api/app/:id/:func", api.appFunctionPostHandler)
+	r.Any("/api/app/:id/:func", api.appFunctionHandler)
 
 	api.ginRouter = r
 	return nil
