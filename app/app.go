@@ -39,6 +39,7 @@ func (app *App) handleRequest(message *nlibshared.WebSocketMessage) error {
 		if err := utils.DecodeStruct(message.Payload, &payloadReq); err != nil {
 			return err
 		}
+		logs.Info("register function", zap.String("appID", app.appID), zap.String("func", payloadReq.Name), zap.Bool("useHAR", payloadReq.UseHAR))
 		app.registeredFunctions.Store(payloadReq.Name, &payloadReq)
 		res := &nlibshared.WebSocketMessage{
 			MessageID:     uuid.NewString(),
@@ -50,7 +51,7 @@ func (app *App) handleRequest(message *nlibshared.WebSocketMessage) error {
 				Name: payloadReq.Name,
 			},
 		}
-		if err := app.connection.WriteJSON(res); err != nil {
+		if err := app.sendMessage(res); err != nil {
 			return err
 		}
 	default:
@@ -60,7 +61,7 @@ func (app *App) handleRequest(message *nlibshared.WebSocketMessage) error {
 }
 
 func (app *App) handleResponse(message *nlibshared.WebSocketMessage) error {
-	if chRaw, ok := app.pendingResponseChannels.Load(message.PairMessageID); ok {
+	if chRaw, ok := app.pendingResponseChannels.LoadAndDelete(message.PairMessageID); ok {
 		if ch, ok := chRaw.(chan *nlibshared.WebSocketMessage); ok {
 			ch <- message
 		}
@@ -80,7 +81,8 @@ func (app *App) handleClose() {
 	app.closeSignalCh <- true
 }
 
-func (app *App) handleMessage(message *nlibshared.WebSocketMessage) error {
+func (app *App) receiveMessage(message *nlibshared.WebSocketMessage) error {
+	logs.Debug("receive message", zap.Any("message", message))
 	switch message.Type {
 	case nlibshared.WebSocketMessageTypeRequest:
 		return app.handleRequest(message)
@@ -125,9 +127,17 @@ func (app *App) ListenWebSocketMessages() error {
 		case <-app.closeSignalCh:
 			return nil
 		case message := <-app.messageCh:
-			app.handleMessage(message)
+			app.receiveMessage(message)
 		}
 	}
+}
+
+func (app *App) sendMessage(message *nlibshared.WebSocketMessage) error {
+	logs.Debug("send message", zap.Any("message", message))
+	if err := app.connection.WriteJSON(message); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (app *App) SendWebSocketMessage(subType string, payload interface{}) (*nlibshared.WebSocketMessage, error) {
@@ -140,11 +150,10 @@ func (app *App) SendWebSocketMessage(subType string, payload interface{}) (*nlib
 	}
 	ch := make(chan *nlibshared.WebSocketMessage, 1)
 	app.pendingResponseChannels.Store(message.MessageID, ch)
-	if err := app.connection.WriteJSON(message); err != nil {
+	if err := app.sendMessage(message); err != nil {
 		return nil, err
 	}
 	res := <-ch
-	app.pendingResponseChannels.Delete(message.MessageID)
 	return res, nil
 }
 
@@ -183,6 +192,7 @@ func (app *App) CallSimpleFunction(name string, req *nlibshared.SimpleFunctionIn
 func (app *App) CallHARFunction(name string, req *nlibshared.HARFunctionIn) (*nlibshared.HARFunctionOut, error) {
 	funcReq := &nlibshared.PayloadCallFunctionRequest{
 		Name:    name,
+		UseHAR:  true,
 		Request: req,
 	}
 	res, err := app.SendWebSocketMessage(nlibshared.WebSocketMessageSubTypeCallFunction, funcReq)

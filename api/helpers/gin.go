@@ -62,5 +62,6 @@ func GinToHARRequest(c *gin.Context) *nlibshared.Request {
 			})
 		}
 	}
+	req.URL = c.Request.URL.String()
 	return &req
 }
