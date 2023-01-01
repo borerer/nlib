@@ -82,7 +82,7 @@ func (app *App) handleClose() {
 }
 
 func (app *App) receiveMessage(message *nlibshared.WebSocketMessage) error {
-	logs.Debug("receive message", zap.Any("message", message))
+	logs.Debug("receive message", zap.String("appID", app.appID), zap.Any("message", message))
 	switch message.Type {
 	case nlibshared.WebSocketMessageTypeRequest:
 		return app.handleRequest(message)
@@ -133,7 +133,7 @@ func (app *App) ListenWebSocketMessages() error {
 }
 
 func (app *App) sendMessage(message *nlibshared.WebSocketMessage) error {
-	logs.Debug("send message", zap.Any("message", message))
+	logs.Debug("send message", zap.String("appID", app.appID), zap.Any("message", message))
 	if err := app.connection.WriteJSON(message); err != nil {
 		return err
 	}
