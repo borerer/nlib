@@ -39,7 +39,7 @@ func (app *App) handleRequest(message *nlibshared.WebSocketMessage) error {
 		if err := utils.DecodeStruct(message.Payload, &payloadReq); err != nil {
 			return err
 		}
-		logs.Info("register function", zap.String("appID", app.appID), zap.String("func", payloadReq.Name), zap.Bool("useHAR", payloadReq.UseHAR))
+		logs.Info("register function", zap.String("appID", app.appID), zap.String("func", payloadReq.Name))
 		app.registeredFunctions.Store(payloadReq.Name, &payloadReq)
 		res := &nlibshared.WebSocketMessage{
 			MessageID:     uuid.NewString(),

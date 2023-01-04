@@ -5,7 +5,6 @@ import (
 	"io"
 	"net/http"
 
-	nlibshared "github.com/borerer/nlib-shared/go"
 	"github.com/borerer/nlib/logs"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -49,19 +48,4 @@ func BodyToMap(c *gin.Context) map[string]interface{} {
 		json.Unmarshal(buf, &ret)
 	}
 	return ret
-}
-
-func GinToHARRequest(c *gin.Context) *nlibshared.Request {
-	var req nlibshared.Request
-	req.Method = c.Request.Method
-	for k, v := range c.Request.URL.Query() {
-		if len(v) > 0 {
-			req.QueryString = append(req.QueryString, nlibshared.Query{
-				Name:  k,
-				Value: v[0], // TODO, handle len > 1 cases
-			})
-		}
-	}
-	req.URL = c.Request.URL.String()
-	return &req
 }
