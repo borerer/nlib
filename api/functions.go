@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/base64"
 	"io"
 
 	nlibshared "github.com/borerer/nlib-shared/go"
@@ -54,7 +55,16 @@ func harToGin(c *gin.Context, res *nlibshared.Response) {
 	for _, header := range res.Headers {
 		c.Header(header.Name, header.Value)
 	}
-	c.String(int(res.Status), *res.Content.Text)
+	if *res.Content.Encoding == "base64" {
+		buf, err := base64.StdEncoding.DecodeString(*res.Content.Text)
+		if err != nil {
+			helpers.Abort500(c, err)
+			return
+		}
+		c.Data(int(res.Status), "", buf)
+	} else {
+		c.String(int(res.Status), *res.Content.Text)
+	}
 }
 
 func (api *API) appFunctionHandler(c *gin.Context) {
@@ -64,6 +74,7 @@ func (api *API) appFunctionHandler(c *gin.Context) {
 	res, err := api.appManager.CallFunction(appID, funcName, req)
 	if err != nil {
 		helpers.Abort500(c, err)
+		return
 	}
 	harToGin(c, res)
 }
