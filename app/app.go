@@ -157,22 +157,10 @@ func (app *App) SendWebSocketMessage(subType string, payload interface{}) (*nlib
 	return res, nil
 }
 
-func (app *App) FunctionUseHAR(name string) bool {
-	raw, ok := app.registeredFunctions.Load(name)
-	if !ok {
-		return false
-	}
-	req, ok := raw.(*nlibshared.PayloadRegisterFunctionRequest)
-	if !ok {
-		return false
-	}
-	return req.UseHAR
-}
-
-func (app *App) CallSimpleFunction(name string, req *nlibshared.SimpleFunctionIn) (nlibshared.SimpleFunctionOut, error) {
+func (app *App) CallFunction(name string, req *nlibshared.Request) (*nlibshared.Response, error) {
 	funcReq := &nlibshared.PayloadCallFunctionRequest{
 		Name:    name,
-		Request: req,
+		Request: *req,
 	}
 	res, err := app.SendWebSocketMessage(nlibshared.WebSocketMessageSubTypeCallFunction, funcReq)
 	if err != nil {
@@ -182,30 +170,5 @@ func (app *App) CallSimpleFunction(name string, req *nlibshared.SimpleFunctionIn
 	if err = utils.DecodeStruct(res.Payload, &funcRes); err != nil {
 		return nil, err
 	}
-	var out nlibshared.SimpleFunctionOut
-	if err = utils.DecodeStruct(funcRes.Response, &out); err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (app *App) CallHARFunction(name string, req *nlibshared.HARFunctionIn) (*nlibshared.HARFunctionOut, error) {
-	funcReq := &nlibshared.PayloadCallFunctionRequest{
-		Name:    name,
-		UseHAR:  true,
-		Request: req,
-	}
-	res, err := app.SendWebSocketMessage(nlibshared.WebSocketMessageSubTypeCallFunction, funcReq)
-	if err != nil {
-		return nil, err
-	}
-	var funcRes nlibshared.PayloadCallFunctionResponse
-	if err = utils.DecodeStruct(res.Payload, &funcRes); err != nil {
-		return nil, err
-	}
-	var out nlibshared.HARFunctionOut
-	if err = utils.DecodeStruct(funcRes.Response, &out); err != nil {
-		return nil, err
-	}
-	return &out, nil
+	return &funcRes.Response, nil
 }

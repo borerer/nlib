@@ -42,6 +42,8 @@ github.com/benbjohnson/clock v1.1.0 h1:Q92kusRqC1XV2MjkWETPvjJVqKetz1OzxZB7mHJLj
 github.com/benbjohnson/clock v1.1.0/go.mod h1:J11/hYXuz8f4ySSvYwY0FKfm+ezbsZBKZxNJlLklBHA=
 github.com/borerer/nlib-shared/go v0.0.0-20221231150715-40b729a586d4 h1:lSmgpb0dYtlxnm5ibtFBdNSk3saBVIFxkOsTW56fuN4=
 github.com/borerer/nlib-shared/go v0.0.0-20221231150715-40b729a586d4/go.mod h1:Tiz/Dc3ncB5B3Xfan/VvgOSBUMfpJGMpDfA2z7IxcnY=
+github.com/borerer/nlib-shared/go v0.0.0-20230104142624-c9884f03ab91 h1:rQUx2xe69Kw8j0XlvLmVGRL1zrijraNWQIx/YOEOnvE=
+github.com/borerer/nlib-shared/go v0.0.0-20230104142624-c9884f03ab91/go.mod h1:Tiz/Dc3ncB5B3Xfan/VvgOSBUMfpJGMpDfA2z7IxcnY=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
 github.com/chzyer/logex v1.1.10/go.mod h1:+Ywpsq7O8HXn0nuIou7OrIPyXbp3wmkHB+jjWRnGsAI=
 github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e/go.mod h1:nSuG5e5PlCu98SY8svDHJxuZscDgtXS6KTTbou5AhLI=

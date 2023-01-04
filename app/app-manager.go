@@ -24,19 +24,9 @@ func (m *AppManager) StartConnection(appID string, conn *websocket.Conn) error {
 	return client.ListenWebSocketMessages()
 }
 
-func (m *AppManager) FunctionUseHAR(appID string, name string) bool {
+func (m *AppManager) CallFunction(appID string, name string, req *nlibshared.Request) (*nlibshared.Response, error) {
 	app := m.getApp(appID)
-	return app.FunctionUseHAR(name)
-}
-
-func (m *AppManager) CallSimpleFunction(appID string, name string, req *nlibshared.SimpleFunctionIn) (nlibshared.SimpleFunctionOut, error) {
-	app := m.getApp(appID)
-	return app.CallSimpleFunction(name, req)
-}
-
-func (m *AppManager) CallHARFunction(appID string, name string, req *nlibshared.HARFunctionIn) (*nlibshared.HARFunctionOut, error) {
-	app := m.getApp(appID)
-	return app.CallHARFunction(name, req)
+	return app.CallFunction(name, req)
 }
 
 func (m *AppManager) getApp(appID string) *App {

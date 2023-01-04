@@ -3,7 +3,7 @@ module github.com/borerer/nlib
 go 1.19
 
 require (
-	github.com/borerer/nlib-shared/go v0.0.0-20221231150715-40b729a586d4
+	github.com/borerer/nlib-shared/go v0.0.0-20230104142624-c9884f03ab91
 	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-contrib/zap v0.0.2
 	github.com/gin-gonic/gin v1.7.7
