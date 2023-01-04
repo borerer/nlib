@@ -42,10 +42,14 @@ func ginToHAR(c *gin.Context) *nlibshared.Request {
 	}
 	req.URL = c.Request.URL.String()
 	buf, err := io.ReadAll(c.Request.Body)
-	if err == nil && len(buf) > 0 {
-		s := string(buf)
+	if err != nil {
+		return &req
+	}
+	if len(buf) > 0 {
+		// binary support in request is undefined in har spec, in nlib, we always use base64
+		b64Str := base64.StdEncoding.EncodeToString(buf)
 		req.PostData = &nlibshared.PostData{
-			Text: &s,
+			Text: &b64Str,
 		}
 	}
 	return &req
@@ -55,7 +59,7 @@ func harToGin(c *gin.Context, res *nlibshared.Response) {
 	for _, header := range res.Headers {
 		c.Header(header.Name, header.Value)
 	}
-	if *res.Content.Encoding == "base64" {
+	if res.Content.Encoding != nil && *res.Content.Encoding == "base64" {
 		buf, err := base64.StdEncoding.DecodeString(*res.Content.Text)
 		if err != nil {
 			helpers.Abort500(c, err)
