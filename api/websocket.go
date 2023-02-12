@@ -23,7 +23,7 @@ func (api *API) websocketHandler(c *gin.Context) {
 		helpers.Abort500(c, err)
 		return
 	}
-	if err := api.appManager.StartConnection(appID, conn); err != nil {
+	if err := api.appManager.AddRemoteApp(appID, conn); err != nil {
 		helpers.Abort500(c, err)
 		return
 	}

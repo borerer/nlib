@@ -1,4 +1,4 @@
-package app
+package remote
 
 import (
 	"io"
@@ -7,6 +7,7 @@ import (
 	"time"
 
 	nlibshared "github.com/borerer/nlib-shared/go"
+	"github.com/borerer/nlib/app/common"
 	"github.com/borerer/nlib/logs"
 	"github.com/borerer/nlib/utils"
 	"github.com/google/uuid"
@@ -14,7 +15,7 @@ import (
 	"go.uber.org/zap"
 )
 
-type App struct {
+type RemoteApp struct {
 	appID                   string
 	connection              *websocket.Conn
 	messageCh               chan *nlibshared.WebSocketMessage
@@ -23,16 +24,16 @@ type App struct {
 	registeredFunctions     sync.Map
 }
 
-func NewApp(appID string) *App {
-	c := &App{appID: appID}
+func NewRemoteApp(appID string) *RemoteApp {
+	c := &RemoteApp{appID: appID}
 	return c
 }
 
-func (app *App) SetWebSocketConnection(conn *websocket.Conn) {
+func (app *RemoteApp) SetWebSocketConnection(conn *websocket.Conn) {
 	app.connection = conn
 }
 
-func (app *App) handleRequest(message *nlibshared.WebSocketMessage) error {
+func (app *RemoteApp) handleRequest(message *nlibshared.WebSocketMessage) error {
 	switch message.SubType {
 	case nlibshared.WebSocketMessageSubTypeRegisterFunction:
 		var payloadReq nlibshared.PayloadRegisterFunctionRequest
@@ -60,7 +61,7 @@ func (app *App) handleRequest(message *nlibshared.WebSocketMessage) error {
 	return nil
 }
 
-func (app *App) handleResponse(message *nlibshared.WebSocketMessage) error {
+func (app *RemoteApp) handleResponse(message *nlibshared.WebSocketMessage) error {
 	if chRaw, ok := app.pendingResponseChannels.LoadAndDelete(message.PairMessageID); ok {
 		if ch, ok := chRaw.(chan *nlibshared.WebSocketMessage); ok {
 			ch <- message
@@ -69,19 +70,19 @@ func (app *App) handleResponse(message *nlibshared.WebSocketMessage) error {
 	return nil
 }
 
-func (app *App) socketCloseHandler(code int, text string) error {
+func (app *RemoteApp) socketCloseHandler(code int, text string) error {
 	logs.Info("websocket close handler called", zap.String("appID", app.appID))
 	app.handleClose()
 	return nil
 }
 
-func (app *App) handleClose() {
+func (app *RemoteApp) handleClose() {
 	logs.Info("handle websocket close", zap.String("appID", app.appID))
 	app.connection = nil
 	app.closeSignalCh <- true
 }
 
-func (app *App) receiveMessage(message *nlibshared.WebSocketMessage) error {
+func (app *RemoteApp) receiveMessage(message *nlibshared.WebSocketMessage) error {
 	logs.Debug("receive message", zap.String("appID", app.appID), zap.Any("message", message))
 	switch message.Type {
 	case nlibshared.WebSocketMessageTypeRequest:
@@ -94,7 +95,7 @@ func (app *App) receiveMessage(message *nlibshared.WebSocketMessage) error {
 	}
 }
 
-func (app *App) readMessages() {
+func (app *RemoteApp) readMessages() {
 	for {
 		var message nlibshared.WebSocketMessage
 		if err := app.connection.ReadJSON(&message); err != nil {
@@ -114,7 +115,7 @@ func (app *App) readMessages() {
 	}
 }
 
-func (app *App) ListenWebSocketMessages() error {
+func (app *RemoteApp) ListenWebSocketMessages() error {
 	logs.Info("websocket connected", zap.String("appID", app.appID))
 	app.messageCh = make(chan *nlibshared.WebSocketMessage)
 	app.closeSignalCh = make(chan bool)
@@ -132,7 +133,7 @@ func (app *App) ListenWebSocketMessages() error {
 	}
 }
 
-func (app *App) sendMessage(message *nlibshared.WebSocketMessage) error {
+func (app *RemoteApp) sendMessage(message *nlibshared.WebSocketMessage) error {
 	logs.Debug("send message", zap.String("appID", app.appID), zap.Any("message", message))
 	if err := app.connection.WriteJSON(message); err != nil {
 		return err
@@ -140,7 +141,7 @@ func (app *App) sendMessage(message *nlibshared.WebSocketMessage) error {
 	return nil
 }
 
-func (app *App) SendWebSocketMessage(subType string, payload interface{}) (*nlibshared.WebSocketMessage, error) {
+func (app *RemoteApp) SendWebSocketMessage(subType string, payload interface{}) (*nlibshared.WebSocketMessage, error) {
 	message := &nlibshared.WebSocketMessage{
 		MessageID: uuid.NewString(),
 		Type:      nlibshared.WebSocketMessageTypeRequest,
@@ -157,18 +158,18 @@ func (app *App) SendWebSocketMessage(subType string, payload interface{}) (*nlib
 	return res, nil
 }
 
-func (app *App) CallFunction(name string, req *nlibshared.Request) (*nlibshared.Response, error) {
+func (app *RemoteApp) CallFunction(name string, req *nlibshared.Request) *nlibshared.Response {
 	funcReq := &nlibshared.PayloadCallFunctionRequest{
 		Name:    name,
 		Request: *req,
 	}
 	res, err := app.SendWebSocketMessage(nlibshared.WebSocketMessageSubTypeCallFunction, funcReq)
 	if err != nil {
-		return nil, err
+		return common.Error(err)
 	}
 	var funcRes nlibshared.PayloadCallFunctionResponse
 	if err = utils.DecodeStruct(res.Payload, &funcRes); err != nil {
-		return nil, err
+		return common.Error(err)
 	}
-	return &funcRes.Response, nil
+	return &funcRes.Response
 }

@@ -17,6 +17,32 @@ type APIConfig struct {
 	Port string `yaml:"port" mapstructure:"port"`
 }
 
+type BuiltinConfig struct {
+	KV    KVConfig `yaml:"kv" mapstructure:"kv"`
+	Logs  KVConfig `yaml:"logs" mapstructure:"logs"`
+	Files KVConfig `yaml:"files" mapstructure:"files"`
+}
+
+type KVConfig struct {
+	Enabled bool        `yaml:"enabled" mapstructure:"enabled"`
+	Mongo   MongoConfig `yaml:"mongo" mapstructure:"mongo"`
+}
+
+type LogsConfig struct {
+	Enabled bool        `yaml:"enabled" mapstructure:"enabled"`
+	Mongo   MongoConfig `yaml:"mongo" mapstructure:"mongo"`
+}
+
+type FilesConfig struct {
+	Enabled bool `yaml:"enabled" mapstructure:"enabled"`
+}
+
+type MongoConfig struct {
+	URI        string `yaml:"uri" mapstructure:"uri"`
+	Database   string `yaml:"database" mapstructure:"database"`
+	Collection string `yaml:"collection" mapstructure:"collection"`
+}
+
 func GetServerConfig() *ServerConfig {
 	// config.yaml
 	viper.AddConfigPath(".")

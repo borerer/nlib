@@ -75,10 +75,6 @@ func (api *API) appFunctionHandler(c *gin.Context) {
 	appID := c.Param("id")
 	funcName := c.Param("func")
 	req := ginToHAR(c)
-	res, err := api.appManager.CallFunction(appID, funcName, req)
-	if err != nil {
-		helpers.Abort500(c, err)
-		return
-	}
+	res := api.appManager.CallFunction(appID, funcName, req)
 	harToGin(c, res)
 }

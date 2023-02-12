@@ -22,7 +22,7 @@ type API struct {
 func NewAPI(config *configs.APIConfig) *API {
 	api := &API{}
 	api.config = config
-	api.appManager = app.NewAppManager()
+	api.appManager = app.NewAppManager(config)
 	return api
 }
 

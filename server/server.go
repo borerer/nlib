@@ -49,4 +49,5 @@ func Run(config *configs.ServerConfig) {
 	server := NewServer(config)
 	utils.Must(server.Start())
 	waitForever()
+	server.Stop()
 }

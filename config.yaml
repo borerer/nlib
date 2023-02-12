@@ -2,12 +2,24 @@ log-level: debug
 api:
   addr: 0.0.0.0
   port: 9502
-minio:
-  endpoint:
-  access-key:
-  secret-key:
-  use-ssl: true
-  bucket: nlib
-mongo:
-  uri:
-  database: nlib
+builtin:
+  kv:
+    enabled: false
+    mongo:
+      uri:
+      database: nlib
+      collection: kv
+  logs:
+    enabled: false
+    mongo:
+      uri:
+      database: nlib
+      collection: logs
+  files:
+    enabled: false
+    minio:
+      endpoint:
+      access-key:
+      secret-key:
+      use-ssl: true
+      bucket: nlib
