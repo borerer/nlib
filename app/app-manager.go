@@ -2,6 +2,7 @@ package app
 
 import (
 	nlibshared "github.com/borerer/nlib-shared/go"
+	"github.com/borerer/nlib/app/builtin/echo"
 	"github.com/borerer/nlib/app/builtin/kv"
 	"github.com/borerer/nlib/app/common"
 	"github.com/borerer/nlib/app/remote"
@@ -10,8 +11,9 @@ import (
 )
 
 type AppManager struct {
-	config *configs.BuiltinConfig
-	kvApp  *kv.KVApp
+	config  *configs.BuiltinConfig
+	echoApp *echo.EchoApp
+	kvApp   *kv.KVApp
 }
 
 func NewAppManager(config *configs.BuiltinConfig) *AppManager {
@@ -22,9 +24,12 @@ func NewAppManager(config *configs.BuiltinConfig) *AppManager {
 }
 
 func (m *AppManager) Start() error {
-	m.kvApp = kv.NewKVApp(&m.config.KV)
-	if err := m.kvApp.Start(); err != nil {
-		return err
+	m.echoApp = echo.NewEchoApp()
+	if m.config.KV.Enabled {
+		m.kvApp = kv.NewKVApp(&m.config.KV)
+		if err := m.kvApp.Start(); err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -36,6 +41,8 @@ func (m *AppManager) Stop() error {
 // the unified interface to call functions from both builtin and remote apps
 func (m *AppManager) CallFunction(appID string, name string, req *nlibshared.Request) *nlibshared.Response {
 	switch appID {
+	case m.echoApp.AppID():
+		return m.echoApp.CallFunction(name, req)
 	case m.kvApp.AppID():
 		return m.kvApp.CallFunction(name, req)
 	}

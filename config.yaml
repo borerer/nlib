@@ -3,8 +3,10 @@ api:
   addr: 0.0.0.0
   port: 9502
 builtin:
+  echo:
+    enabled: true
   kv:
-    enabled: false
+    enabled: true
     mongo:
       uri:
       database: nlib
