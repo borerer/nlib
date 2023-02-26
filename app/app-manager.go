@@ -1,10 +1,7 @@
 package app
 
 import (
-	"sync"
-
 	nlibshared "github.com/borerer/nlib-shared/go"
-	"github.com/borerer/nlib/app/builtin"
 	"github.com/borerer/nlib/app/builtin/kv"
 	"github.com/borerer/nlib/app/common"
 	"github.com/borerer/nlib/app/remote"
@@ -13,44 +10,52 @@ import (
 )
 
 type AppManager struct {
-	config      *configs.ServerConfig
-	builtinApps sync.Map
+	config *configs.BuiltinConfig
+	kvApp  *kv.KVApp
 }
 
-func NewAppManager(config *configs.ServerConfig) *AppManager {
+func NewAppManager(config *configs.BuiltinConfig) *AppManager {
 	m := &AppManager{
 		config: config,
 	}
 	return m
 }
 
+func (m *AppManager) Start() error {
+	m.kvApp = kv.NewKVApp(&m.config.KV)
+	if err := m.kvApp.Start(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *AppManager) Stop() error {
+	return nil
+}
+
+// the unified interface to call functions from both builtin and remote apps
 func (m *AppManager) CallFunction(appID string, name string, req *nlibshared.Request) *nlibshared.Response {
-	builtinAppRaw, ok := m.builtinApps.Load(appID)
-	if ok {
-		builtinApp, ok := builtinAppRaw.(*builtin.BuiltInApp)
-		if !ok {
-			return common.Err500
-		}
-		return builtinApp.CallFunction(name, req)
+	switch appID {
+	case m.kvApp.AppID():
+		return m.kvApp.CallFunction(name, req)
 	}
-	remoteAppRaw, ok := m.builtinApps.Load(appID)
-	if ok {
-		remoteApp, ok := remoteAppRaw.(*remote.RemoteApp)
-		if !ok {
-			return common.Err500
-		}
-		return remoteApp.CallFunction(name, req)
-	}
+	// builtinAppRaw, ok := m.builtinApps.Load(appID)
+	// if ok {
+	// 	builtinApp, ok := builtinAppRaw.(*builtin.BuiltInApp)
+	// 	if !ok {
+	// 		return common.Err500
+	// 	}
+	// 	return builtinApp.CallFunction(name, req)
+	// }
+	// remoteAppRaw, ok := m.builtinApps.Load(appID)
+	// if ok {
+	// 	remoteApp, ok := remoteAppRaw.(*remote.RemoteApp)
+	// 	if !ok {
+	// 		return common.Err500
+	// 	}
+	// 	return remoteApp.CallFunction(name, req)
+	// }
 	return common.Err404
-}
-
-func (m *AppManager) installBuiltinApps() {
-	kvApp := kv.NewKVApp()
-}
-
-func (m *AppManager) AddBuiltinApp(appID string) {
-	app := builtin.NewBuiltinApp(appID)
-	m.builtinApps.Store(appID, app)
 }
 
 func (m *AppManager) AddRemoteApp(appID string, conn *websocket.Conn) error {

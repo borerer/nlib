@@ -12,19 +12,43 @@ import (
 )
 
 type KVApp struct {
-	*common.BuiltInApp
 	config      *configs.KVConfig
 	mongoClient *database.MongoClient
 }
 
 func NewKVApp(config *configs.KVConfig) *KVApp {
 	return &KVApp{
-		BuiltInApp: common.NewBuiltinApp("kv"),
-		config:     config,
+		config: config,
 	}
 }
 
-func (kv *KVApp) GetKey(req *nlibshared.Request) *nlibshared.Response {
+func (kv *KVApp) Start() error {
+	kv.mongoClient = database.NewMongoClient(&kv.config.Mongo)
+	if err := kv.mongoClient.Start(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (kv *KVApp) Stop() error {
+	return nil
+}
+
+func (kv *KVApp) AppID() string {
+	return "kv"
+}
+
+func (kv *KVApp) CallFunction(name string, req *nlibshared.Request) *nlibshared.Response {
+	if name == "get" {
+		return kv.getKey(req)
+	} else if name == "set" {
+		return kv.setKey(req)
+	} else {
+		return common.Err404
+	}
+}
+
+func (kv *KVApp) getKey(req *nlibshared.Request) *nlibshared.Response {
 	key := common.GetQuery(req, "key")
 	val, err := kv.mongoClient.GetKey(key)
 	if errors.Is(err, database.ErrNoDocuments) {
@@ -77,32 +101,11 @@ func (kv *KVApp) setKeyPOST(req *nlibshared.Request) *nlibshared.Response {
 	return common.Text("ok")
 }
 
-func (kv *KVApp) SetKey(req *nlibshared.Request) *nlibshared.Response {
+func (kv *KVApp) setKey(req *nlibshared.Request) *nlibshared.Response {
 	if req.Method == "GET" {
 		return kv.setKeyGET(req)
 	} else if req.Method == "POST" || req.Method == "PUT" {
 		return kv.setKeyPOST(req)
 	}
 	return common.Err405
-}
-
-func (kv *KVApp) Start() error {
-	kv.mongoClient = database.NewMongoClient(&kv.config.Mongo)
-	if err := kv.mongoClient.Start(); err != nil {
-		return err
-	}
-	kv.RegisterFunction("get", kv.GetKey)
-	kv.RegisterFunction("set", kv.SetKey)
-	return nil
-	// RegisterFunction("kv", "get", getKey)
-	// nlib.SetEndpoint(os.Getenv("NLIB_SERVER"))
-	// nlib.SetAppID("kv")
-	// nlib.Must(nlib.Connect())
-	// nlib.RegisterFunction("get", getKey)
-	// nlib.RegisterFunction("set", setKey)
-	// nlib.Wait()
-}
-
-func (kv *KVApp) Stop() error {
-	return nil
 }

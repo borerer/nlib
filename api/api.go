@@ -19,14 +19,17 @@ type API struct {
 	httpServer *http.Server
 }
 
-func NewAPI(config *configs.APIConfig) *API {
+func NewAPI(config *configs.APIConfig, appManager *app.AppManager) *API {
 	api := &API{}
 	api.config = config
-	api.appManager = app.NewAppManager(config)
+	api.appManager = appManager
 	return api
 }
 
 func (api *API) Start() error {
+	if err := api.appManager.Start(); err != nil {
+		return err
+	}
 	if err := api.createRouter(); err != nil {
 		return err
 	}
@@ -51,6 +54,9 @@ func (api *API) Stop() error {
 		if err := api.httpServer.Shutdown(context.Background()); err != nil {
 			return err
 		}
+	}
+	if err := api.appManager.Stop(); err != nil {
+		return err
 	}
 	return nil
 }

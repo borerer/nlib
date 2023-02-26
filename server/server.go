@@ -2,6 +2,7 @@ package server
 
 import (
 	"github.com/borerer/nlib/api"
+	"github.com/borerer/nlib/app"
 	"github.com/borerer/nlib/configs"
 	"github.com/borerer/nlib/logs"
 	"github.com/borerer/nlib/utils"
@@ -9,19 +10,24 @@ import (
 )
 
 type Server struct {
-	config *configs.ServerConfig
-	api    *api.API
+	config     *configs.ServerConfig
+	api        *api.API
+	appManager *app.AppManager
 }
 
 func NewServer(config *configs.ServerConfig) *Server {
 	server := &Server{}
 	server.config = config
-	server.api = api.NewAPI(&config.API)
+	server.appManager = app.NewAppManager(&config.Builtin)
+	server.api = api.NewAPI(&config.API, server.appManager)
 	return server
 }
 
 func (server *Server) Start() error {
 	logs.Info("start server")
+	if err := server.appManager.Start(); err != nil {
+		return err
+	}
 	if err := server.api.Start(); err != nil {
 		return err
 	}
@@ -30,10 +36,11 @@ func (server *Server) Start() error {
 
 func (server *Server) Stop() error {
 	logs.Info("stop server")
-	if server.api != nil {
-		if err := server.api.Stop(); err != nil {
-			return err
-		}
+	if err := server.api.Stop(); err != nil {
+		return err
+	}
+	if err := server.appManager.Stop(); err != nil {
+		return err
 	}
 	return nil
 }

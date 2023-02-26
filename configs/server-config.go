@@ -8,8 +8,9 @@ import (
 )
 
 type ServerConfig struct {
-	LogLevel string    `yaml:"log-level" mapstructure:"log-level"`
-	API      APIConfig `yaml:"api" mapstructure:"api"`
+	LogLevel string        `yaml:"log-level" mapstructure:"log-level"`
+	API      APIConfig     `yaml:"api" mapstructure:"api"`
+	Builtin  BuiltinConfig `yaml:"builtin" mapstructure:"builtin"`
 }
 
 type APIConfig struct {
