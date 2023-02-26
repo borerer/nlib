@@ -3,6 +3,7 @@ package app
 import (
 	nlibshared "github.com/borerer/nlib-shared/go"
 	"github.com/borerer/nlib/app/builtin/echo"
+	"github.com/borerer/nlib/app/builtin/files"
 	"github.com/borerer/nlib/app/builtin/kv"
 	"github.com/borerer/nlib/app/builtin/logs"
 	"github.com/borerer/nlib/app/common"
@@ -12,10 +13,11 @@ import (
 )
 
 type AppManager struct {
-	config  *configs.BuiltinConfig
-	echoApp *echo.EchoApp
-	kvApp   *kv.KVApp
-	logsApp *logs.LogsApp
+	config   *configs.BuiltinConfig
+	echoApp  *echo.EchoApp
+	kvApp    *kv.KVApp
+	logsApp  *logs.LogsApp
+	filesApp *files.FilesApp
 }
 
 func NewAppManager(config *configs.BuiltinConfig) *AppManager {
@@ -41,6 +43,12 @@ func (m *AppManager) Start() error {
 			return err
 		}
 	}
+	if m.config.Files.Enabled {
+		m.filesApp = files.NewFilesApp(&m.config.Files)
+		if err := m.filesApp.Start(); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
@@ -52,6 +60,11 @@ func (m *AppManager) Stop() error {
 	}
 	if m.logsApp != nil {
 		if err := m.logsApp.Stop(); err != nil {
+			return err
+		}
+	}
+	if m.filesApp != nil {
+		if err := m.filesApp.Stop(); err != nil {
 			return err
 		}
 	}
@@ -67,6 +80,8 @@ func (m *AppManager) CallFunction(appID string, name string, req *nlibshared.Req
 		return m.kvApp.CallFunction(name, req)
 	case m.logsApp.AppID():
 		return m.logsApp.CallFunction(name, req)
+	case m.filesApp.AppID():
+		return m.filesApp.CallFunction(name, req)
 	}
 	// remoteAppRaw, ok := m.builtinApps.Load(appID)
 	// if ok {

@@ -18,10 +18,15 @@ builtin:
       database: nlib
       collection: logs
   files:
-    enabled: false
+    enabled: true
     minio:
+      enabled: true
       endpoint:
       access-key:
       secret-key:
       use-ssl: true
       bucket: nlib
+    webdav:
+      enabled: true
+    samba:
+      enabled: true
