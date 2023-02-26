@@ -19,10 +19,10 @@ type APIConfig struct {
 }
 
 type BuiltinConfig struct {
-	Echo  EchoConfig `yaml:"echo" mapstructure:"echo"`
-	KV    KVConfig   `yaml:"kv" mapstructure:"kv"`
-	Logs  KVConfig   `yaml:"logs" mapstructure:"logs"`
-	Files KVConfig   `yaml:"files" mapstructure:"files"`
+	Echo  EchoConfig  `yaml:"echo" mapstructure:"echo"`
+	KV    KVConfig    `yaml:"kv" mapstructure:"kv"`
+	Logs  LogsConfig  `yaml:"logs" mapstructure:"logs"`
+	Files FilesConfig `yaml:"files" mapstructure:"files"`
 }
 
 type EchoConfig struct {

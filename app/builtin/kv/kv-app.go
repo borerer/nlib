@@ -39,11 +39,12 @@ func (kv *KVApp) AppID() string {
 }
 
 func (kv *KVApp) CallFunction(name string, req *nlibshared.Request) *nlibshared.Response {
-	if name == "get" {
+	switch name {
+	case "get":
 		return kv.getKey(req)
-	} else if name == "set" {
+	case "set":
 		return kv.setKey(req)
-	} else {
+	default:
 		return common.Err404
 	}
 }

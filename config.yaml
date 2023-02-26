@@ -12,7 +12,7 @@ builtin:
       database: nlib
       collection: kv
   logs:
-    enabled: false
+    enabled: true
     mongo:
       uri:
       database: nlib

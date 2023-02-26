@@ -4,6 +4,7 @@ import (
 	nlibshared "github.com/borerer/nlib-shared/go"
 	"github.com/borerer/nlib/app/builtin/echo"
 	"github.com/borerer/nlib/app/builtin/kv"
+	"github.com/borerer/nlib/app/builtin/logs"
 	"github.com/borerer/nlib/app/common"
 	"github.com/borerer/nlib/app/remote"
 	"github.com/borerer/nlib/configs"
@@ -14,6 +15,7 @@ type AppManager struct {
 	config  *configs.BuiltinConfig
 	echoApp *echo.EchoApp
 	kvApp   *kv.KVApp
+	logsApp *logs.LogsApp
 }
 
 func NewAppManager(config *configs.BuiltinConfig) *AppManager {
@@ -24,10 +26,18 @@ func NewAppManager(config *configs.BuiltinConfig) *AppManager {
 }
 
 func (m *AppManager) Start() error {
-	m.echoApp = echo.NewEchoApp()
+	if m.config.Echo.Enabled {
+		m.echoApp = echo.NewEchoApp()
+	}
 	if m.config.KV.Enabled {
 		m.kvApp = kv.NewKVApp(&m.config.KV)
 		if err := m.kvApp.Start(); err != nil {
+			return err
+		}
+	}
+	if m.config.Logs.Enabled {
+		m.logsApp = logs.NewLogsApp(&m.config.Logs)
+		if err := m.logsApp.Start(); err != nil {
 			return err
 		}
 	}
@@ -35,6 +45,16 @@ func (m *AppManager) Start() error {
 }
 
 func (m *AppManager) Stop() error {
+	if m.kvApp != nil {
+		if err := m.kvApp.Stop(); err != nil {
+			return err
+		}
+	}
+	if m.logsApp != nil {
+		if err := m.logsApp.Stop(); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
@@ -45,15 +65,9 @@ func (m *AppManager) CallFunction(appID string, name string, req *nlibshared.Req
 		return m.echoApp.CallFunction(name, req)
 	case m.kvApp.AppID():
 		return m.kvApp.CallFunction(name, req)
+	case m.logsApp.AppID():
+		return m.logsApp.CallFunction(name, req)
 	}
-	// builtinAppRaw, ok := m.builtinApps.Load(appID)
-	// if ok {
-	// 	builtinApp, ok := builtinAppRaw.(*builtin.BuiltInApp)
-	// 	if !ok {
-	// 		return common.Err500
-	// 	}
-	// 	return builtinApp.CallFunction(name, req)
-	// }
 	// remoteAppRaw, ok := m.builtinApps.Load(appID)
 	// if ok {
 	// 	remoteApp, ok := remoteAppRaw.(*remote.RemoteApp)
