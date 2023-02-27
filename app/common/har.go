@@ -25,6 +25,7 @@ func NewResponse(statusCode int, content string, contentType string) *nlibshared
 	return res
 }
 
+var Err400 = NewResponse(http.StatusNotFound, http.StatusText(http.StatusBadRequest), "")
 var Err404 = NewResponse(http.StatusNotFound, http.StatusText(http.StatusNotFound), "")
 var Err405 = NewResponse(http.StatusMethodNotAllowed, http.StatusText(http.StatusMethodNotAllowed), "")
 var Err500 = NewResponse(http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError), "")

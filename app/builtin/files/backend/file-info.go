@@ -1,4 +1,4 @@
-package file
+package backend
 
 type FileInfo struct {
 	Size         int64

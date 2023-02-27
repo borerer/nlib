@@ -40,8 +40,10 @@ type LogsConfig struct {
 }
 
 type FilesConfig struct {
-	Enabled bool        `yaml:"enabled" mapstructure:"enabled"`
-	Minio   MinioConfig `yaml:"minio" mapstructure:"minio"`
+	Enabled bool         `yaml:"enabled" mapstructure:"enabled"`
+	Backend string       `yaml:"backend" mapstructure:"backend"`
+	Minio   MinioConfig  `yaml:"minio" mapstructure:"minio"`
+	Webdav  WebdavConfig `yaml:"webdav" mapstructure:"webdav"`
 }
 
 type MongoConfig struct {
@@ -51,12 +53,17 @@ type MongoConfig struct {
 }
 
 type MinioConfig struct {
-	Enabled   bool   `yaml:"enabled" mapstructure:"enabled"`
 	Endpoint  string `yaml:"endpoint" mapstructure:"endpoint"`
 	AccessKey string `yaml:"access-key" mapstructure:"access-key"`
 	SecretKey string `yaml:"secret-key" mapstructure:"secret-key"`
 	UseSSL    bool   `yaml:"use-ssl" mapstructure:"use-ssl"`
 	Bucket    string `yaml:"bucket" mapstructure:"bucket"`
+}
+
+type WebdavConfig struct {
+	Endpoint string `yaml:"endpoint" mapstructure:"endpoint"`
+	User     string `yaml:"user" mapstructure:"user"`
+	Password string `yaml:"password" mapstructure:"password"`
 }
 
 func GetServerConfig() *ServerConfig {

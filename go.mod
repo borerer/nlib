@@ -21,6 +21,7 @@ require (
 	github.com/minio/sha256-simd v1.0.0 // indirect
 	github.com/rs/xid v1.4.0 // indirect
 	github.com/sirupsen/logrus v1.9.0 // indirect
+	github.com/studio-b12/gowebdav v0.0.0-20230203202212-3282f94193f2 // indirect
 	golang.org/x/net v0.7.0 // indirect
 )
 

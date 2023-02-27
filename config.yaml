@@ -19,14 +19,15 @@ builtin:
       collection: logs
   files:
     enabled: true
+    backend: webdav
     minio:
-      enabled: true
       endpoint:
       access-key:
       secret-key:
       use-ssl: true
       bucket: nlib
     webdav:
-      enabled: true
+      endpoint:
+      user:
+      password:
     samba:
-      enabled: true
