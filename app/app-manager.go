@@ -1,6 +1,8 @@
 package app
 
 import (
+	"sync"
+
 	nlibshared "github.com/borerer/nlib-shared/go"
 	"github.com/borerer/nlib/app/builtin/echo"
 	"github.com/borerer/nlib/app/builtin/files"
@@ -13,6 +15,10 @@ import (
 )
 
 type AppManager struct {
+	// remote
+	remoteApps sync.Map
+
+	// builtin
 	config   *configs.BuiltinConfig
 	echoApp  *echo.EchoApp
 	kvApp    *kv.KVApp
@@ -83,52 +89,27 @@ func (m *AppManager) CallFunction(appID string, name string, req *nlibshared.Req
 	case m.filesApp.AppID():
 		return m.filesApp.CallFunction(name, req)
 	}
-	// remoteAppRaw, ok := m.builtinApps.Load(appID)
-	// if ok {
-	// 	remoteApp, ok := remoteAppRaw.(*remote.RemoteApp)
-	// 	if !ok {
-	// 		return common.Err500
-	// 	}
-	// 	return remoteApp.CallFunction(name, req)
-	// }
-	return common.Err404
+	remoteApp, ok := m.getRemoteApp(appID)
+	if !ok {
+		return common.Err404
+	}
+	return remoteApp.CallFunction(name, req)
 }
 
 func (m *AppManager) AddRemoteApp(appID string, conn *websocket.Conn) error {
-	app := remote.NewRemoteApp(appID)
-	app.SetWebSocketConnection(conn)
-	return app.ListenWebSocketMessages()
+	remoteApp := remote.NewRemoteApp(appID)
+	remoteApp.SetWebSocketConnection(conn)
+	m.remoteApps.Store(appID, remoteApp)
+	return remoteApp.ListenWebSocketMessages()
 }
 
-// func (m *AppManager) getRemoteApp(appID string) *App {
-// 	var app *App
-// 	raw, ok := m.apps.Load(appID)
-// 	if ok {
-// 		app, ok = raw.(*App)
-// 		if !ok {
-// 			logs.Warn("unexpected get nlib app error", zap.String("appID", appID))
-// 			// fallback to create a new client instance
-// 		}
-// 	}
-// 	if app == nil {
-
-// 	}
-// 	return app
-// }
-
-// func (m *AppManager) getBuiltinApp(appID string) *builtin.BuiltInApp {
-// 	var app *builtin.BuiltInApp
-// 	raw, ok := m.apps.Load(appID)
-// 	if ok {
-// 		app, ok = raw.(*App)
-// 		if !ok {
-// 			logs.Warn("unexpected get nlib app error", zap.String("appID", appID))
-// 			// fallback to create a new client instance
-// 		}
-// 	}
-// 	if app == nil {
-// 		app = NewApp(appID)
-// 		m.apps.Store(appID, app)
-// 	}
-// 	return app
-// }
+func (m *AppManager) getRemoteApp(appID string) (*remote.RemoteApp, bool) {
+	raw, ok := m.remoteApps.Load(appID)
+	if ok {
+		app, ok := raw.(*remote.RemoteApp)
+		if ok {
+			return app, true
+		}
+	}
+	return nil, false
+}
