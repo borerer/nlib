@@ -19,6 +19,7 @@ type FilesApp struct {
 	config        *configs.FilesConfig
 	minioClient   *backend.MinioClient
 	webdavClient  *backend.WebdavClient
+	sambaClient   *backend.SambaClient
 	activeBackend backend.FSBackend
 }
 
@@ -42,6 +43,12 @@ func (app *FilesApp) Start() error {
 			return err
 		}
 		app.activeBackend = app.webdavClient
+	case "samba":
+		app.sambaClient = backend.NewSambaClient(&app.config.Samba)
+		if err := app.sambaClient.Start(); err != nil {
+			return err
+		}
+		app.activeBackend = app.sambaClient
 	}
 	return nil
 }

@@ -19,7 +19,7 @@ builtin:
       collection: logs
   files:
     enabled: true
-    backend: webdav
+    backend: samba
     minio:
       endpoint:
       access-key:
@@ -31,3 +31,8 @@ builtin:
       user:
       password:
     samba:
+      endpoint:
+      user:
+      password:
+      share:
+      path:

@@ -44,6 +44,7 @@ type FilesConfig struct {
 	Backend string       `yaml:"backend" mapstructure:"backend"`
 	Minio   MinioConfig  `yaml:"minio" mapstructure:"minio"`
 	Webdav  WebdavConfig `yaml:"webdav" mapstructure:"webdav"`
+	Samba   SambaConfig  `yaml:"samba" mapstructure:"samba"`
 }
 
 type MongoConfig struct {
@@ -64,6 +65,14 @@ type WebdavConfig struct {
 	Endpoint string `yaml:"endpoint" mapstructure:"endpoint"`
 	User     string `yaml:"user" mapstructure:"user"`
 	Password string `yaml:"password" mapstructure:"password"`
+}
+
+type SambaConfig struct {
+	Endpoint string `yaml:"endpoint" mapstructure:"endpoint"`
+	User     string `yaml:"user" mapstructure:"user"`
+	Password string `yaml:"password" mapstructure:"password"`
+	Share    string `yaml:"share" mapstructure:"share"`
+	Path     string `yaml:"path" mapstructure:"path"`
 }
 
 func GetServerConfig() *ServerConfig {
