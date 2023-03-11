@@ -7,10 +7,13 @@ import (
 	"github.com/gin-contrib/cors"
 	ginzap "github.com/gin-contrib/zap"
 	"github.com/gin-gonic/gin"
+	ginprometheus "github.com/zsais/go-gin-prometheus"
 )
 
 func (api *API) createRouter() error {
 	r := gin.New()
+	p := ginprometheus.NewPrometheus("nlib")
+	p.Use(r)
 	zapLogger := logs.GetZapLogger()
 	r.Use(ginzap.Ginzap(zapLogger, time.RFC3339, true))
 	r.Use(ginzap.RecoveryWithZap(zapLogger, true))
