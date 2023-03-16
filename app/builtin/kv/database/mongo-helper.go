@@ -7,3 +7,7 @@ func FilterEquals(key string, val string) interface{} {
 		key: val,
 	}
 }
+
+var (
+	NoFilter = bson.M{}
+)

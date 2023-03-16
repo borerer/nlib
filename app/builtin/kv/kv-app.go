@@ -44,6 +44,8 @@ func (kv *KVApp) CallFunction(name string, req *nlibshared.Request) *nlibshared.
 		return kv.getKey(req)
 	case "set":
 		return kv.setKey(req)
+	case "recent":
+		return kv.getRecent(req)
 	default:
 		return common.Err404
 	}
@@ -109,4 +111,14 @@ func (kv *KVApp) setKey(req *nlibshared.Request) *nlibshared.Response {
 		return kv.setKeyPOST(req)
 	}
 	return common.Err405
+}
+
+func (kv *KVApp) getRecent(req *nlibshared.Request) *nlibshared.Response {
+	skip := common.GetQueryAsInt(req, "skip", 0)
+	limit := common.GetQueryAsInt(req, "limit", 10)
+	res, err := kv.mongoClient.GetRecent(skip, limit)
+	if err != nil {
+		return common.Error(err)
+	}
+	return common.JSON(res)
 }

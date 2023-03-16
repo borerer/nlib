@@ -4,7 +4,9 @@ import (
 	"errors"
 	"time"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func (mc *MongoClient) SetKey(key string, value string) error {
@@ -40,4 +42,13 @@ func (mc *MongoClient) GetKey(key string) (string, error) {
 		return "", err
 	}
 	return doc.Value, nil
+}
+
+func (mc *MongoClient) GetRecent(skip int, limit int) ([]DBKV, error) {
+	var res []DBKV
+	err := mc.FindDocuments(mc.config.Collection, NoFilter, &res, options.Find().SetSkip(int64(skip)).SetLimit(int64(limit)).SetSort(bson.D{{Key: "updated", Value: -1}}))
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
 }

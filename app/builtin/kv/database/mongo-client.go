@@ -63,9 +63,9 @@ func (mc *MongoClient) UpdateDocument(colName string, filter interface{}, doc in
 	return nil
 }
 
-func (mc *MongoClient) FindDocuments(colName string, filter interface{}, res interface{}) error {
+func (mc *MongoClient) FindDocuments(colName string, filter interface{}, res interface{}, opts ...*options.FindOptions) error {
 	col := mc.client.Database(mc.config.Database).Collection(colName)
-	cur, err := col.Find(context.Background(), filter)
+	cur, err := col.Find(context.Background(), filter, opts...)
 	if err != nil {
 		return err
 	}

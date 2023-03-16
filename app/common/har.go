@@ -3,6 +3,7 @@ package common
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	nlibshared "github.com/borerer/nlib-shared/go"
 )
@@ -53,6 +54,15 @@ func GetQuery(req *nlibshared.Request, key string) string {
 		}
 	}
 	return ""
+}
+
+func GetQueryAsInt(req *nlibshared.Request, key string, fallback int) int {
+	val := GetQuery(req, key)
+	i, err := strconv.Atoi(val)
+	if err != nil {
+		return fallback
+	}
+	return i
 }
 
 func GetHeader(req *nlibshared.Request, key string) string {
