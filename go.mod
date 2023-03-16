@@ -19,6 +19,7 @@ require (
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/geoffgarside/ber v1.1.0 // indirect
+	github.com/gin-contrib/static v0.0.1 // indirect
 	github.com/hirochachacha/go-smb2 v1.1.0 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.3 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect

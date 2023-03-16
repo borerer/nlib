@@ -5,6 +5,7 @@ import (
 
 	"github.com/borerer/nlib/logs"
 	"github.com/gin-contrib/cors"
+	"github.com/gin-contrib/static"
 	ginzap "github.com/gin-contrib/zap"
 	"github.com/gin-gonic/gin"
 	ginprometheus "github.com/zsais/go-gin-prometheus"
@@ -25,7 +26,7 @@ func (api *API) createRouter() error {
 		AllowCredentials: true,
 	}))
 
-	r.GET("/", api.getHomepageHandler)
+	r.Use(static.Serve("/", static.LocalFile("ui", false)))
 
 	r.GET("/api/app/:id/ws", api.websocketHandler)
 	r.Any("/api/app/:id/:func", api.appFunctionHandler)
