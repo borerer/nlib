@@ -50,9 +50,17 @@ func (kv *KVApp) CallFunction(name string, req *nlibshared.Request) *nlibshared.
 	}
 }
 
+func (kv *KVApp) GetKey(key string) (string, error) {
+	val, err := kv.mongoClient.GetKey(key)
+	if err != nil {
+		return "", err
+	}
+	return val, nil
+}
+
 func (kv *KVApp) getKey(req *nlibshared.Request) *nlibshared.Response {
 	key := common.GetQuery(req, "key")
-	val, err := kv.mongoClient.GetKey(key)
+	val, err := kv.GetKey(key)
 	if errors.Is(err, database.ErrNoDocuments) {
 		return common.Err404
 	} else if err != nil {

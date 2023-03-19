@@ -3,7 +3,6 @@ package logs
 import (
 	"encoding/base64"
 	"encoding/json"
-	"strconv"
 
 	nlibshared "github.com/borerer/nlib-shared/go"
 	"github.com/borerer/nlib/app/builtin/logs/database"
@@ -56,30 +55,32 @@ func (app *LogsApp) CallFunction(name string, req *nlibshared.Request) *nlibshar
 	}
 }
 
-func getQuery(req *nlibshared.Request, key string) string {
-	for _, query := range req.QueryString {
-		if query.Name == key {
-			return query.Value
+func arrayToMap(args ...interface{}) map[string]interface{} {
+	res := map[string]interface{}{}
+	for i := 0; i+1 < len(args); i += 2 {
+		s, ok := args[i].(string)
+		if !ok {
+			continue
 		}
+		res[s] = args[i+1]
 	}
-	return ""
+	return res
 }
 
-func getQueryAsInt(req *nlibshared.Request, key string) int {
-	val := getQuery(req, key)
-	i, err := strconv.Atoi(val)
+func (app *LogsApp) Log(level string, message string, args ...interface{}) error {
+	err := app.mongoClient.AddLogs(level, message, arrayToMap(args...))
 	if err != nil {
-		return 0
+		return err
 	}
-	return i
+	return nil
 }
 
 func (app *LogsApp) logGET(req *nlibshared.Request) *nlibshared.Response {
-	level := getQuery(req, "level")
+	level := common.GetQuery(req, "level")
 	if len(level) == 0 {
 		level = "info"
 	}
-	message := getQuery(req, "message")
+	message := common.GetQuery(req, "message")
 	err := app.mongoClient.AddLogs(level, message, nil)
 	if err != nil {
 		return common.Error(err)
@@ -129,9 +130,17 @@ func (app *LogsApp) log(req *nlibshared.Request) *nlibshared.Response {
 	return common.Err405
 }
 
+func (app *LogsApp) Debug(message string, args ...interface{}) error {
+	return app.Log("debug", message, args...)
+}
+
 func (app *LogsApp) debug(req *nlibshared.Request) *nlibshared.Response {
 	req.QueryString = append(req.QueryString, nlibshared.Query{Name: "level", Value: "debug"})
 	return app.log(req)
+}
+
+func (app *LogsApp) Info(message string, args ...interface{}) error {
+	return app.Log("info", message, args...)
 }
 
 func (app *LogsApp) info(req *nlibshared.Request) *nlibshared.Response {
@@ -139,9 +148,17 @@ func (app *LogsApp) info(req *nlibshared.Request) *nlibshared.Response {
 	return app.log(req)
 }
 
+func (app *LogsApp) Warn(message string, args ...interface{}) error {
+	return app.Log("warn", message, args...)
+}
+
 func (app *LogsApp) warn(req *nlibshared.Request) *nlibshared.Response {
 	req.QueryString = append(req.QueryString, nlibshared.Query{Name: "level", Value: "warn"})
 	return app.log(req)
+}
+
+func (app *LogsApp) Error(message string, args ...interface{}) error {
+	return app.Log("error", message, args...)
 }
 
 func (app *LogsApp) error_(req *nlibshared.Request) *nlibshared.Response {
@@ -150,11 +167,8 @@ func (app *LogsApp) error_(req *nlibshared.Request) *nlibshared.Response {
 }
 
 func (app *LogsApp) get(req *nlibshared.Request) *nlibshared.Response {
-	n := getQueryAsInt(req, "n")
-	if n == 0 {
-		n = 100
-	}
-	skip := getQueryAsInt(req, "skip")
+	n := common.GetQueryAsInt(req, "n", 10)
+	skip := common.GetQueryAsInt(req, "skip", 0)
 	logs, err := app.mongoClient.GetLogs(n, skip)
 	if err != nil {
 		return common.Error(err)
