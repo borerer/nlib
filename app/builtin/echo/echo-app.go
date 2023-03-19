@@ -12,6 +12,14 @@ func NewEchoApp() *EchoApp {
 	return &EchoApp{}
 }
 
+func (a *EchoApp) Start() error {
+	return nil
+}
+
+func (a *EchoApp) Stop() error {
+	return nil
+}
+
 func (a *EchoApp) AppID() string {
 	return "echo"
 }

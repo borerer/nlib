@@ -3,36 +3,20 @@ api:
   addr: 0.0.0.0
   port: 9502
 builtin:
-  echo:
-    enabled: true
-  kv:
-    enabled: true
-    mongo:
-      uri:
-      database: nlib
-      collection: kv
-  logs:
-    enabled: true
-    mongo:
-      uri:
-      database: nlib
-      collection: logs
-  files:
-    enabled: true
-    backend: samba
-    minio:
-      endpoint:
-      access-key:
-      secret-key:
-      use-ssl: true
-      bucket: nlib
-    webdav:
-      endpoint:
-      user:
-      password:
-    samba:
-      endpoint:
-      user:
-      password:
-      share:
-      path:
+  mongo:
+  webdav:
+    endpoint:
+    user:
+    password:
+  samba:
+    endpoint:
+    user:
+    password:
+    share:
+    path:
+  minio:
+    endpoint:
+    access-key:
+    secret-key:
+    use-ssl: true
+    bucket: nlib

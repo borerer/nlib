@@ -3,6 +3,7 @@ package files
 import (
 	"bytes"
 	"encoding/base64"
+	"errors"
 	"io"
 
 	nlibshared "github.com/borerer/nlib-shared/go"
@@ -16,44 +17,36 @@ var (
 )
 
 type FilesApp struct {
-	config        *configs.FilesConfig
-	minioClient   *backend.MinioClient
-	webdavClient  *backend.WebdavClient
-	sambaClient   *backend.SambaClient
+	config        *configs.BuiltinConfig
 	activeBackend backend.FSBackend
 }
 
-func NewFilesApp(config *configs.FilesConfig) *FilesApp {
+func NewFilesApp(config *configs.BuiltinConfig) *FilesApp {
 	return &FilesApp{
 		config: config,
 	}
 }
 
 func (app *FilesApp) Start() error {
-	switch app.config.Backend {
-	case "minio":
-		app.minioClient = backend.NewMinioClient(&app.config.Minio)
-		if err := app.minioClient.Start(); err != nil {
-			return err
-		}
-		app.activeBackend = app.minioClient
-	case "webdav":
-		app.webdavClient = backend.NewWebdavClient(&app.config.Webdav)
-		if err := app.webdavClient.Start(); err != nil {
-			return err
-		}
-		app.activeBackend = app.webdavClient
-	case "samba":
-		app.sambaClient = backend.NewSambaClient(&app.config.Samba)
-		if err := app.sambaClient.Start(); err != nil {
-			return err
-		}
-		app.activeBackend = app.sambaClient
+	if len(app.config.Webdav.Endpoint) > 0 {
+		app.activeBackend = backend.NewWebdavClient(&app.config.Webdav)
+	} else if len(app.config.Samba.Endpoint) > 0 {
+		app.activeBackend = backend.NewSambaClient(&app.config.Samba)
+	} else if len(app.config.Minio.Endpoint) > 0 {
+		app.activeBackend = backend.NewMinioClient(&app.config.Minio)
+	} else {
+		return errors.New("no valid files backend")
+	}
+	if err := app.activeBackend.Start(); err != nil {
+		return err
 	}
 	return nil
 }
 
 func (app *FilesApp) Stop() error {
+	if err := app.activeBackend.Stop(); err != nil {
+		return err
+	}
 	return nil
 }
 

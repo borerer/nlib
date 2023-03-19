@@ -11,7 +11,7 @@ import (
 
 func (mc *MongoClient) SetKey(key string, value string) error {
 	var doc DBKV
-	err := mc.FindOneDocument(mc.config.Collection, FilterEquals("key", key), &doc)
+	err := mc.FindOneDocument(FilterEquals("key", key), &doc)
 	if err != nil {
 		// for both ErrNoDocuments and other errors, try create a new one
 		doc = DBKV{
@@ -24,7 +24,7 @@ func (mc *MongoClient) SetKey(key string, value string) error {
 		doc.Value = value
 		doc.Updated = time.Now().UnixMilli()
 	}
-	if err := mc.UpdateDocument(mc.config.Collection, FilterEquals("key", key), doc); err != nil {
+	if err := mc.UpdateDocument(FilterEquals("key", key), doc); err != nil {
 		return err
 	}
 	return nil
@@ -35,7 +35,7 @@ func (mc *MongoClient) SetKey(key string, value string) error {
 //  2. others
 func (mc *MongoClient) GetKey(key string) (string, error) {
 	var doc DBKV
-	err := mc.FindOneDocument(mc.config.Collection, FilterEquals("key", key), &doc)
+	err := mc.FindOneDocument(FilterEquals("key", key), &doc)
 	if errors.Is(err, mongo.ErrNoDocuments) {
 		return "", ErrNoDocuments
 	} else if err != nil {
@@ -46,7 +46,7 @@ func (mc *MongoClient) GetKey(key string) (string, error) {
 
 func (mc *MongoClient) GetRecent(skip int, limit int) ([]DBKV, error) {
 	var res []DBKV
-	err := mc.FindDocuments(mc.config.Collection, NoFilter, &res, options.Find().SetSkip(int64(skip)).SetLimit(int64(limit)).SetSort(bson.D{{Key: "updated", Value: -1}}))
+	err := mc.FindDocuments(NoFilter, &res, options.Find().SetSkip(int64(skip)).SetLimit(int64(limit)).SetSort(bson.D{{Key: "updated", Value: -1}}))
 	if err != nil {
 		return nil, err
 	}

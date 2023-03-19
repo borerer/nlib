@@ -19,46 +19,10 @@ type APIConfig struct {
 }
 
 type BuiltinConfig struct {
-	Echo  EchoConfig  `yaml:"echo" mapstructure:"echo"`
-	KV    KVConfig    `yaml:"kv" mapstructure:"kv"`
-	Logs  LogsConfig  `yaml:"logs" mapstructure:"logs"`
-	Files FilesConfig `yaml:"files" mapstructure:"files"`
-}
-
-type EchoConfig struct {
-	Enabled bool `yaml:"enabled" mapstructure:"enabled"`
-}
-
-type KVConfig struct {
-	Enabled bool        `yaml:"enabled" mapstructure:"enabled"`
-	Mongo   MongoConfig `yaml:"mongo" mapstructure:"mongo"`
-}
-
-type LogsConfig struct {
-	Enabled bool        `yaml:"enabled" mapstructure:"enabled"`
-	Mongo   MongoConfig `yaml:"mongo" mapstructure:"mongo"`
-}
-
-type FilesConfig struct {
-	Enabled bool         `yaml:"enabled" mapstructure:"enabled"`
-	Backend string       `yaml:"backend" mapstructure:"backend"`
-	Minio   MinioConfig  `yaml:"minio" mapstructure:"minio"`
-	Webdav  WebdavConfig `yaml:"webdav" mapstructure:"webdav"`
-	Samba   SambaConfig  `yaml:"samba" mapstructure:"samba"`
-}
-
-type MongoConfig struct {
-	URI        string `yaml:"uri" mapstructure:"uri"`
-	Database   string `yaml:"database" mapstructure:"database"`
-	Collection string `yaml:"collection" mapstructure:"collection"`
-}
-
-type MinioConfig struct {
-	Endpoint  string `yaml:"endpoint" mapstructure:"endpoint"`
-	AccessKey string `yaml:"access-key" mapstructure:"access-key"`
-	SecretKey string `yaml:"secret-key" mapstructure:"secret-key"`
-	UseSSL    bool   `yaml:"use-ssl" mapstructure:"use-ssl"`
-	Bucket    string `yaml:"bucket" mapstructure:"bucket"`
+	Mongo  string       `yaml:"mongo" mapstructure:"mongo"`
+	Webdav WebdavConfig `yaml:"webdav" mapstructure:"webdav"`
+	Samba  SambaConfig  `yaml:"samba" mapstructure:"samba"`
+	Minio  MinioConfig  `yaml:"minio" mapstructure:"minio"`
 }
 
 type WebdavConfig struct {
@@ -73,6 +37,14 @@ type SambaConfig struct {
 	Password string `yaml:"password" mapstructure:"password"`
 	Share    string `yaml:"share" mapstructure:"share"`
 	Path     string `yaml:"path" mapstructure:"path"`
+}
+
+type MinioConfig struct {
+	Endpoint  string `yaml:"endpoint" mapstructure:"endpoint"`
+	AccessKey string `yaml:"access-key" mapstructure:"access-key"`
+	SecretKey string `yaml:"secret-key" mapstructure:"secret-key"`
+	UseSSL    bool   `yaml:"use-ssl" mapstructure:"use-ssl"`
+	Bucket    string `yaml:"bucket" mapstructure:"bucket"`
 }
 
 func GetServerConfig() *ServerConfig {

@@ -8,22 +8,21 @@ import (
 	nlibshared "github.com/borerer/nlib-shared/go"
 	"github.com/borerer/nlib/app/builtin/kv/database"
 	"github.com/borerer/nlib/app/common"
-	"github.com/borerer/nlib/configs"
 )
 
 type KVApp struct {
-	config      *configs.KVConfig
+	mongoURI    string
 	mongoClient *database.MongoClient
 }
 
-func NewKVApp(config *configs.KVConfig) *KVApp {
+func NewKVApp(mongoURI string) *KVApp {
 	return &KVApp{
-		config: config,
+		mongoURI: mongoURI,
 	}
 }
 
 func (kv *KVApp) Start() error {
-	kv.mongoClient = database.NewMongoClient(&kv.config.Mongo)
+	kv.mongoClient = database.NewMongoClient(kv.mongoURI)
 	if err := kv.mongoClient.Start(); err != nil {
 		return err
 	}

@@ -3,20 +3,24 @@ package database
 import (
 	"context"
 
-	"github.com/borerer/nlib/configs"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type MongoClient struct {
-	config *configs.MongoConfig
-	client *mongo.Client
+	mongoURI string
+	client   *mongo.Client
 }
 
-func NewMongoClient(config *configs.MongoConfig) *MongoClient {
+const (
+	MongoDatabase   = "nlib"
+	MongoCollection = "logs"
+)
+
+func NewMongoClient(mongoURI string) *MongoClient {
 	return &MongoClient{
-		config: config,
+		mongoURI: mongoURI,
 	}
 }
 
@@ -25,7 +29,7 @@ func (mc *MongoClient) connect() error {
 		return nil
 	}
 	var err error
-	mc.client, err = mongo.Connect(context.Background(), options.Client().ApplyURI(mc.config.URI))
+	mc.client, err = mongo.Connect(context.Background(), options.Client().ApplyURI(mc.mongoURI))
 	if err != nil {
 		return err
 	}
@@ -43,8 +47,8 @@ func (mc *MongoClient) Stop() error {
 	return nil
 }
 
-func (mc *MongoClient) InsertDocument(colName string, doc interface{}) error {
-	col := mc.client.Database(mc.config.Database).Collection(colName)
+func (mc *MongoClient) InsertDocument(doc interface{}) error {
+	col := mc.client.Database(MongoDatabase).Collection(MongoCollection)
 	_, err := col.InsertOne(context.Background(), doc)
 	if err != nil {
 		return err
@@ -52,8 +56,8 @@ func (mc *MongoClient) InsertDocument(colName string, doc interface{}) error {
 	return nil
 }
 
-func (mc *MongoClient) UpdateDocument(colName string, filter interface{}, doc interface{}) error {
-	col := mc.client.Database(mc.config.Database).Collection(colName)
+func (mc *MongoClient) UpdateDocument(filter interface{}, doc interface{}) error {
+	col := mc.client.Database(MongoDatabase).Collection(MongoCollection)
 	update := bson.D{{Key: "$set", Value: doc}}
 	opt := options.Update().SetUpsert(true)
 	_, err := col.UpdateOne(context.Background(), filter, update, opt)
@@ -63,8 +67,8 @@ func (mc *MongoClient) UpdateDocument(colName string, filter interface{}, doc in
 	return nil
 }
 
-func (mc *MongoClient) FindDocuments(colName string, filter interface{}, res interface{}, opts ...*options.FindOptions) error {
-	col := mc.client.Database(mc.config.Database).Collection(colName)
+func (mc *MongoClient) FindDocuments(filter interface{}, res interface{}, opts ...*options.FindOptions) error {
+	col := mc.client.Database(MongoDatabase).Collection(MongoCollection)
 	cur, err := col.Find(context.Background(), filter, opts...)
 	if err != nil {
 		return err
@@ -76,8 +80,8 @@ func (mc *MongoClient) FindDocuments(colName string, filter interface{}, res int
 	return nil
 }
 
-func (mc *MongoClient) FindOneDocument(colName string, filter interface{}, res interface{}) error {
-	col := mc.client.Database(mc.config.Database).Collection(colName)
+func (mc *MongoClient) FindOneDocument(filter interface{}, res interface{}) error {
+	col := mc.client.Database(MongoDatabase).Collection(MongoCollection)
 	ret := col.FindOne(context.Background(), filter)
 	if ret.Err() != nil {
 		return ret.Err()

@@ -8,22 +8,21 @@ import (
 	nlibshared "github.com/borerer/nlib-shared/go"
 	"github.com/borerer/nlib/app/builtin/logs/database"
 	"github.com/borerer/nlib/app/common"
-	"github.com/borerer/nlib/configs"
 )
 
 type LogsApp struct {
-	config      *configs.LogsConfig
+	mongoURI    string
 	mongoClient *database.MongoClient
 }
 
-func NewLogsApp(config *configs.LogsConfig) *LogsApp {
+func NewLogsApp(mongoURI string) *LogsApp {
 	return &LogsApp{
-		config: config,
+		mongoURI: mongoURI,
 	}
 }
 
 func (app *LogsApp) Start() error {
-	app.mongoClient = database.NewMongoClient(&app.config.Mongo)
+	app.mongoClient = database.NewMongoClient(app.mongoURI)
 	if err := app.mongoClient.Start(); err != nil {
 		return err
 	}

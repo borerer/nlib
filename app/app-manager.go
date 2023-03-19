@@ -19,11 +19,8 @@ type AppManager struct {
 	remoteApps sync.Map
 
 	// builtin
-	config   *configs.BuiltinConfig
-	echoApp  *echo.EchoApp
-	kvApp    *kv.KVApp
-	logsApp  *logs.LogsApp
-	filesApp *files.FilesApp
+	config      *configs.BuiltinConfig
+	builtinApps map[string]common.AppInterface
 }
 
 func NewAppManager(config *configs.BuiltinConfig) *AppManager {
@@ -34,24 +31,18 @@ func NewAppManager(config *configs.BuiltinConfig) *AppManager {
 }
 
 func (m *AppManager) Start() error {
-	if m.config.Echo.Enabled {
-		m.echoApp = echo.NewEchoApp()
+	echoApp := echo.NewEchoApp()
+	kvApp := kv.NewKVApp(m.config.Mongo)
+	logsApp := logs.NewLogsApp(m.config.Mongo)
+	filesApp := files.NewFilesApp(m.config)
+	m.builtinApps = map[string]common.AppInterface{
+		echoApp.AppID():  echoApp,
+		kvApp.AppID():    kvApp,
+		logsApp.AppID():  logsApp,
+		filesApp.AppID(): filesApp,
 	}
-	if m.config.KV.Enabled {
-		m.kvApp = kv.NewKVApp(&m.config.KV)
-		if err := m.kvApp.Start(); err != nil {
-			return err
-		}
-	}
-	if m.config.Logs.Enabled {
-		m.logsApp = logs.NewLogsApp(&m.config.Logs)
-		if err := m.logsApp.Start(); err != nil {
-			return err
-		}
-	}
-	if m.config.Files.Enabled {
-		m.filesApp = files.NewFilesApp(&m.config.Files)
-		if err := m.filesApp.Start(); err != nil {
+	for _, app := range m.builtinApps {
+		if err := app.Start(); err != nil {
 			return err
 		}
 	}
@@ -59,18 +50,8 @@ func (m *AppManager) Start() error {
 }
 
 func (m *AppManager) Stop() error {
-	if m.kvApp != nil {
-		if err := m.kvApp.Stop(); err != nil {
-			return err
-		}
-	}
-	if m.logsApp != nil {
-		if err := m.logsApp.Stop(); err != nil {
-			return err
-		}
-	}
-	if m.filesApp != nil {
-		if err := m.filesApp.Stop(); err != nil {
+	for _, app := range m.builtinApps {
+		if err := app.Stop(); err != nil {
 			return err
 		}
 	}
@@ -79,21 +60,15 @@ func (m *AppManager) Stop() error {
 
 // the unified interface to call functions from both builtin and remote apps
 func (m *AppManager) CallFunction(appID string, name string, req *nlibshared.Request) *nlibshared.Response {
-	switch appID {
-	case m.echoApp.AppID():
-		return m.echoApp.CallFunction(name, req)
-	case m.kvApp.AppID():
-		return m.kvApp.CallFunction(name, req)
-	case m.logsApp.AppID():
-		return m.logsApp.CallFunction(name, req)
-	case m.filesApp.AppID():
-		return m.filesApp.CallFunction(name, req)
+	builtinApp, ok := m.builtinApps[appID]
+	if ok {
+		return builtinApp.CallFunction(name, req)
 	}
 	remoteApp, ok := m.getRemoteApp(appID)
-	if !ok {
-		return common.Err404
+	if ok {
+		return remoteApp.CallFunction(name, req)
 	}
-	return remoteApp.CallFunction(name, req)
+	return common.Err404
 }
 
 func (m *AppManager) AddRemoteApp(appID string, conn *websocket.Conn) error {
