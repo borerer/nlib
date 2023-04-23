@@ -17,6 +17,6 @@ FROM alpine
 WORKDIR /nlib
 COPY --from=builder /nlib/nlib /nlib/nlib
 COPY --from=builder /nlib/config.yaml /nlib/config.yaml
-COPY --from=builder-ui /nlib-dashboard/build /nlib/ui
+COPY --from=builder-ui /nlib-dashboard/out /nlib/ui
 ENTRYPOINT ["/nlib/nlib"]
 EXPOSE 9502
